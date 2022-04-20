@@ -1,0 +1,24 @@
+new help
+https://www.iconsdb.com/green-icons/help-icon.html
+//https://www.iconexperience.com/v_collection/icons/?icon=help
+
+sin*.svg
+http://148.72.173.10:8080/free-icons/sine-595b40b85ba036ed117daa88
+
+other from js images
+
+svg to png with size
+https://ezgif.com/svg-to-png
+
+ico editor online
+https://redketchup.io/icon-editor
+can select all from paint and paste to upper url
+
+
+make png with begger size
+then trim in photoshop
+select all in photoshop can be paset in https://redketchup.io/icon-editor
+//paste in paint
+//select all
+then paste in https://redketchup.io/icon-editor
+

@@ -1,0 +1,50 @@
+/* 
+button{
+	border-radius: .5em;
+	border: solid 1px #0076a3;
+	background: -gtk-gradient(linear, left top, left bottom, from(#00adee), to(#0078a5));	
+	font-family: Tahoma;
+	font-size: 10pt;
+	padding:1px;
+	text-shadow:none;
+}
+
+button:hover {
+	background: -gtk-gradient(linear, left top, left bottom, from(#0078a5), to(#00adee));
+}
+
+button:hover:active{
+	background: -gtk-gradient(linear, left top, left bottom, from(#0095cc), to(#00678e));
+}
+ */
+label,entry,frame label{
+	color: #000000;
+}
+
+.cerror{
+	color:rgb(255,0,0);
+}
+
+.c0{
+	color:black;
+}
+
+.c1{
+	color:indianred;
+}
+
+.c2{
+	color:green;
+}
+
+.c3{
+	color:blue;
+}
+
+.c4{
+	color:#808000;
+}
+
+.c5{
+	color:orange;
+}
