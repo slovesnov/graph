@@ -289,9 +289,7 @@ double GraphWindow::adjustAxis(double v) {
 }
 
 void GraphWindow::draw(cairo_t *cr, int w, int h) {
-
 	double x,y;
-
 
 	if (m_setaxisOnDraw) {
 		auto k = MAXY * gtk_widget_get_allocated_width(m_area)

@@ -58,6 +58,16 @@ void MinMaxBox::set(double min, double max, bool _updateEntries/*=false*/){
 	}
 }
 
+void MinMaxBox::set(std::string const s[]) {
+	m_signals=false;
+	for(int i=0;i<2;i++){
+		gtk_entry_set_text(GTK_ENTRY(m_entry[i]), s[i].c_str());
+		//updateEntryColor(i);
+	}
+	m_signals=true;
+	inputChanged(false);
+}
+
 void MinMaxBox::setSize(int size) {
 	m_size=size;
 }
@@ -95,7 +105,7 @@ void MinMaxBox::updateEntries() {
 	m_signals = true;
 }
 
-void MinMaxBox::inputChanged() {
+void MinMaxBox::inputChanged(bool redraw/*=true*/) {
 	if(!m_signals){
 		return;
 	}
@@ -104,7 +114,13 @@ void MinMaxBox::inputChanged() {
 	std::string s;
 	for (i = 0; i < 2; i++) {
 		s = gtk_entry_get_text(GTK_ENTRY(m_entry[i]));
-		m_ok[i]=parseString(s, v[i]);
+		try{
+			v[i]=ExpressionEstimator::calculate(s);
+			m_ok[i]=true;
+		}
+		catch(std::exception& e){
+			m_ok[i]=false;
+		}
 	}
 
 	if(v[0]>=v[1]){
@@ -116,6 +132,10 @@ void MinMaxBox::inputChanged() {
 
 	for (i = 0; i < 2; i++) {
 		updateEntryColor(i);
+	}
+
+	if(!redraw){
+		return;
 	}
 
 	if(ok()){

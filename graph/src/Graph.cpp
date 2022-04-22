@@ -15,7 +15,7 @@ extern GraphWindow *pWindow;
 
 const char *name[] = { "y(x)=", "r(a)=", "x(t)=", "y(t)=" };
 const char *formula[] = { "tan(x)", "3*sin(3*a)", "3*cos(t)", "3*sin(t)" };
-const double GRAPH_PARAMETERS[] = {0, 100, 5000};//min,max,step
+const std::string GRAPH_PARAMETERS[] = {"0", "2*pi" , "5 * 1000"};//min,max,step
 
 static void button_clicked(GtkWidget *w, gpointer) {
 	pWindow->removeGraph(w);
@@ -69,12 +69,12 @@ Graph::Graph(GraphType type,int colorIndex) {
 	gtk_box_pack_start(GTK_BOX(m_box), b, FALSE, FALSE, 0);
 
 	setDefault(type,false);
-	m_minmax.set(GRAPH_PARAMETERS[0], GRAPH_PARAMETERS[1], true);
-	m_steps = GRAPH_PARAMETERS[2];
-	gtk_entry_set_text(GTK_ENTRY(m_entry[2]),
-			std::to_string(m_steps).c_str());
-	removeClass(m_entry[2], CERROR);
+	m_minmax.set( GRAPH_PARAMETERS );
 
+	m_signals=false;
+	gtk_entry_set_text(GTK_ENTRY(m_entry[2]), GRAPH_PARAMETERS[2].c_str());
+	m_signals=true;
+	setSteps();
 }
 
 void Graph::recount() {
@@ -107,8 +107,6 @@ void Graph::recountAnyway(){
 	if(m_steps==0 || !m_minmax.ok()){
 		return;
 	}
-	//printl(m_minmax.m_ok[0],m_minmax.m_ok[1])
-	//printl(m_minmax.m_min,m_minmax.m_max,m_steps)
 	for (v = m_minmax.m_min; v <= m_minmax.m_max;
 			v += (m_minmax.m_max - m_minmax.m_min) / m_steps) {
 		try {
@@ -166,6 +164,7 @@ void Graph::setDefault(GraphType type,bool resetColor/*=false*/) {
 	m_signals=false;
 	gtk_combo_box_set_active(GTK_COMBO_BOX(m_combo), t);
 	m_signals=true;
+
 }
 
 void Graph::updateLanguage() {
@@ -189,6 +188,8 @@ void Graph::changeType(int type) {
 		return;
 	}
 	setDefault(GraphType(type),false);
+	//m_minmax.inputChanged(true);
+	setSteps();
 	recountAnyway();
 	pWindow->redraw();
 }
@@ -219,25 +220,15 @@ void Graph::inputChanged(GtkWidget *w) {
 		return;
 	}
 
-	int i=0,j;
+	int i=0;
 	const char* s=gtk_entry_get_text(GTK_ENTRY(w));
 	for(auto a:m_entry){
 		if(a==w){
 			if(i==2){//steps
-				if(parseString(s, j) && j>0){
-					if(m_steps!=j){
-						m_steps=j;
-						recountAnyway();
-						pWindow->redraw();
-						removeClass(w, CERROR);
-					}
+				if(setSteps()){
+					recountAnyway();
 				}
-				else{
-					m_steps=0;
-					m_v.clear();
-					pWindow->redraw();
-					addClass(w, CERROR);
-				}
+				pWindow->redraw();
 			}
 			else{
 				setFormula(s,i);
@@ -272,4 +263,24 @@ double Graph::calculate(int i, double v) {
 
 void Graph::updateEnableClose() {
 	gtk_widget_set_sensitive (m_button, pWindow->m_g.size()>1);
+}
+
+bool Graph::setSteps() {
+	double v;
+	auto w = m_entry[2];
+	try {
+		v = ExpressionEstimator::calculate(gtk_entry_get_text(GTK_ENTRY(w)));
+		if (v == int(v)) {
+			m_steps = v;
+			removeClass(w, CERROR);
+			return true;
+		}
+	} catch (std::exception &e) {
+
+	}
+
+	m_steps = 0;
+	m_v.clear();
+	addClass(w, CERROR);
+	return false;
 }

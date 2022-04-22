@@ -28,13 +28,14 @@ public:
 	Graph *m_graph;
 
 	void init(const char *name, bool invert = false, bool xy = true);
-	void set(double min, double max, bool _updateEntries = false);
+	void set(double mins, double maxs, bool _updateEntries = false);
+	void set(std::string const s[]);
 	void setSize(int size);
 	double toScreen(double v);
 	double fromScreen(int v);
 	void scale(double k);
 	void updateEntries();
-	void inputChanged();
+	void inputChanged(bool redraw=true);
 	void setName(const char *s);
 	bool ok();
 	void updateEntryColor(int i);

@@ -47,6 +47,7 @@ public:
 	void setFormula(std::string s, int i);
 	double calculate(int i,double v);
 	void updateEnableClose();
+	bool setSteps();
 };
 
 #endif /* GRAPH_H_ */
