@@ -270,7 +270,7 @@ bool Graph::setSteps() {
 	auto w = m_entry[2];
 	try {
 		v = ExpressionEstimator::calculate(gtk_entry_get_text(GTK_ENTRY(w)));
-		if (v == int(v)) {
+		if (v > 0 && v == int(v)) {
 			m_steps = v;
 			removeClass(w, CERROR);
 			return true;

@@ -16,7 +16,7 @@
 GraphWindow *pWindow;
 
 const std::string CONFIG_TAGS[]={"version","language"};
-const double APP_VERSION = 1.21; //format("%.2lf",)
+const double APP_VERSION = 1.22; //format("%.2lf",)
 const std::string URL="http://slovesnov.users.sourceforge.net?graph";
 const int startGraphs=1;
 
