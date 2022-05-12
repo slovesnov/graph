@@ -5,14 +5,10 @@
  All rights reserved.
  ******************************************************/
 
-//#include "expressionEstimator.h"
 #include "GraphWindow.h"
-
-#include <iostream>
 
 int main(int argc, char *argv[]) {
 	gtk_init (&argc, &argv);
 	aslovInit(argv);
 	GraphWindow c;
 }
-

@@ -8,6 +8,8 @@
  *         homepage: slovesnov.users.sourceforge.net
  */
 
+#include <cmath>
+
 #include "aslov.h"
 #include "Graph.h"
 #include "GraphWindow.h"
