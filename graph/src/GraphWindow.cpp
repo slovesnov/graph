@@ -424,9 +424,11 @@ int GraphWindow::toScreenY(double v) {
 	return m_xy[1].toScreen(v);
 }
 
-void GraphWindow::axisChanged() {
-	for (auto &a : m_xy) {
-		a.updateEntries();
+void GraphWindow::axisChanged(bool update/*=true*/) {
+	if(update){
+		for (auto &a : m_xy) {
+			a.updateEntries();
+		}
 	}
 	auto &b = m_xy[0];
 	for (auto &a : m_g) {

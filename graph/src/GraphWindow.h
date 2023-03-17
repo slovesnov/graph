@@ -68,7 +68,7 @@ public:
 	Point toScreen(double x,double y){
 		return {double(toScreenX(x)),double(toScreenY(y))};
 	}
-	void axisChanged();
+	void axisChanged(bool update=true);
 	void createLanguageCombo();
 
 	void loadConfig();

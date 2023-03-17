@@ -148,7 +148,7 @@ void MinMaxBox::inputChanged(bool redraw/*=true*/) {
 			if(m_invert){//not need to recount for y-axis changes
 				pWindow->redraw();
 			}else{
-				pWindow->axisChanged();
+				pWindow->axisChanged(false);
 			}
 		}
 	}
