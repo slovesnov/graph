@@ -13,7 +13,7 @@
 
 class Point {
 public:
-		double x,y;
+	double x, y;
 
 };
 

@@ -19,8 +19,8 @@
 #include "expressionEstimator.h"
 #include "MinMaxBox.h"
 
-enum class GraphType{
-	SIMPLE,POLAR,PARAMETRICAL
+enum class GraphType {
+	SIMPLE, POLAR, PARAMETRICAL
 };
 
 class Graph {
@@ -35,8 +35,8 @@ public:
 	std::vector<Point> m_v;
 	int m_colorIndex;
 
-	Graph(GraphType type,int colorIndex);
-	void setDefault(GraphType type,bool resetColor=false);
+	Graph(GraphType type, int colorIndex);
+	void setDefault(GraphType type, bool resetColor = false);
 	void recount(double min, double max, int steps);
 	void recount();
 	void recountAnyway();
@@ -45,7 +45,7 @@ public:
 	void showHideWidgets();
 	void inputChanged(GtkWidget *w);
 	void setFormula(std::string s, int i);
-	double calculate(int i,double v);
+	double calculate(int i, double v);
 	void updateEnableClose();
 	bool setSteps();
 };

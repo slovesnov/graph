@@ -13,8 +13,8 @@
 
 #include "aslov.h"
 const char CERROR[] = "cerror";
-const double MINY=-5;
-const double MAXY=-MINY;
+const double MINY = -5;
+const double MAXY = -MINY;
 
 class Graph;
 
@@ -35,7 +35,7 @@ public:
 	double fromScreen(int v);
 	void scale(double k);
 	void updateEntries();
-	void inputChanged(bool redraw=true);
+	void inputChanged(bool redraw = true);
 	void setName(const char *s);
 	bool ok();
 	void updateEntryColor(int i);

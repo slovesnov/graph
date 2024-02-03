@@ -17,34 +17,33 @@ extern GraphWindow *pWindow;
 
 const char *name[] = { "y(x)=", "r(a)=", "x(t)=", "y(t)=" };
 const char *formula[] = { "tan(x)", "3*sin(3*a)", "3*cos(t)", "3*sin(t)" };
-const std::string GRAPH_PARAMETERS[] = {"0", "2*pi" , "5 * 1000"};//min,max,step
+const std::string GRAPH_PARAMETERS[] = { "0", "2*pi", "5 * 1000" }; //min,max,step
 
 static void button_clicked(GtkWidget *w, gpointer) {
 	pWindow->removeGraph(w);
 }
 
-static void input_changed(GtkWidget*w, gpointer g) {
-	((Graph*)g)->inputChanged(w);
+static void input_changed(GtkWidget *w, gpointer g) {
+	((Graph*) g)->inputChanged(w);
 }
 
 static gboolean combo_changed(GtkComboBox *w, gpointer g) {
-	((Graph*)g)->changeType(gtk_combo_box_get_active(w));
+	((Graph*) g)->changeType(gtk_combo_box_get_active(w));
 	return TRUE;
 }
 
-Graph::Graph(GraphType type,int colorIndex) {
+Graph::Graph(GraphType type, int colorIndex) {
 	int i;
-	m_signals=false;
+	m_signals = false;
 	m_colorIndex = colorIndex % pWindow->m_vcolor.size();
 	m_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3);
-	for(auto&a:m_entry){
-		a=gtk_entry_new();
+	for (auto &a : m_entry) {
+		a = gtk_entry_new();
 		g_signal_connect(a, "changed", G_CALLBACK(input_changed), this);
 	}
 
-	m_combo=gtk_combo_box_text_new();
+	m_combo = gtk_combo_box_text_new();
 	g_signal_connect(m_combo, "changed", G_CALLBACK(combo_changed), this);
-
 
 	for (i = 0; i < 2; i++) {
 		m_name[i] = gtk_label_new("");
@@ -59,7 +58,7 @@ Graph::Graph(GraphType type,int colorIndex) {
 	gtk_box_pack_start(GTK_BOX(m_box), m_typel, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(m_box), m_combo, FALSE, FALSE, 0);
 
-	m_minmax.init( "",false,false);
+	m_minmax.init("", false, false);
 
 	gtk_box_pack_start(GTK_BOX(m_box), m_minmax.m_box, 1, 1, 0);
 	gtk_box_pack_start(GTK_BOX(m_box), m_name[2], FALSE, FALSE, 0);
@@ -70,43 +69,42 @@ Graph::Graph(GraphType type,int colorIndex) {
 	g_signal_connect(G_OBJECT(b), "clicked", G_CALLBACK(button_clicked), 0);
 	gtk_box_pack_start(GTK_BOX(m_box), b, FALSE, FALSE, 0);
 
-	setDefault(type,false);
-	m_minmax.set( GRAPH_PARAMETERS );
+	setDefault(type, false);
+	m_minmax.set(GRAPH_PARAMETERS);
 
-	m_signals=false;
+	m_signals = false;
 	gtk_entry_set_text(GTK_ENTRY(m_entry[2]), GRAPH_PARAMETERS[2].c_str());
-	m_signals=true;
+	m_signals = true;
 	setSteps();
 }
 
 void Graph::recount() {
-	recount(m_minmax.m_min,m_minmax.m_max,m_steps);
+	recount(m_minmax.m_min, m_minmax.m_max, m_steps);
 }
 
 void Graph::recount(double min, double max, int steps) {
-	if(!m_ok[0] || (!m_ok[1] && m_type==GraphType::PARAMETRICAL)){
+	if (!m_ok[0] || (!m_ok[1] && m_type == GraphType::PARAMETRICAL)) {
 		return;
 	}
-	if(m_minmax.m_min==min &&  m_minmax.m_max==max && m_steps==steps ){
+	if (m_minmax.m_min == min && m_minmax.m_max == max && m_steps == steps) {
 		return;
 	}
-	m_minmax.set(min,max);
-	m_steps=steps;
+	//printi
+	m_minmax.set(min, max);
+	m_steps = steps;
 
-	if(m_minmax.ok()){
+	if (m_minmax.ok()) {
 		recountAnyway();
-	}
-	else{
+	} else {
 		m_v.clear();
 		pWindow->redraw();
 	}
 }
 
-void Graph::recountAnyway(){
+void Graph::recountAnyway() {
 	double t, x, y, v;
-
 	m_v.clear();
-	if(m_steps==0 || !m_minmax.ok()){
+	if (m_steps == 0 || !m_minmax.ok()) {
 		return;
 	}
 	for (v = m_minmax.m_min; v <= m_minmax.m_max;
@@ -122,6 +120,7 @@ void Graph::recountAnyway(){
 			} else {
 				x = t;
 				y = calculate(1, v);
+				//printl(y)
 			}
 			m_v.push_back( { x, y });
 		} catch (std::exception &e) {
@@ -132,11 +131,11 @@ void Graph::recountAnyway(){
 	}
 }
 
-void Graph::setDefault(GraphType type,bool resetColor/*=false*/) {
+void Graph::setDefault(GraphType type, bool resetColor/*=false*/) {
 	int i;
-	if(resetColor){
+	if (resetColor) {
 		removeClass(m_name[0], format("c%d", m_colorIndex));
-		m_colorIndex=0;
+		m_colorIndex = 0;
 		addClass(m_name[0], format("c%d", m_colorIndex));
 	}
 
@@ -145,7 +144,7 @@ void Graph::setDefault(GraphType type,bool resetColor/*=false*/) {
 	std::string vf[] = { formula[t],
 			type == GraphType::PARAMETRICAL ? formula[3] : "" };
 
-	m_signals=false;
+	m_signals = false;
 
 	for (i = 0; i < (type == GraphType::PARAMETRICAL ? 2 : 1); i++) {
 		setFormula(vf[i], i);
@@ -153,7 +152,7 @@ void Graph::setDefault(GraphType type,bool resetColor/*=false*/) {
 		gtk_entry_set_text(GTK_ENTRY(m_entry[i]), m_formula[i].c_str());
 		gtk_label_set_text(GTK_LABEL(m_name[i]), name[i == 1 ? 3 : t]);
 	}
-	if(type != GraphType::SIMPLE){
+	if (type != GraphType::SIMPLE) {
 		m_minmax.setName(type == GraphType::PARAMETRICAL ? "t" : "a");
 	}
 
@@ -161,11 +160,11 @@ void Graph::setDefault(GraphType type,bool resetColor/*=false*/) {
 
 	updateLanguage();
 
-	m_minmax.m_graph=this;
+	m_minmax.m_graph = this;
 
-	m_signals=false;
+	m_signals = false;
 	gtk_combo_box_set_active(GTK_COMBO_BOX(m_combo), t);
-	m_signals=true;
+	m_signals = true;
 
 }
 
@@ -189,15 +188,15 @@ void Graph::changeType(int type) {
 	if (!m_signals) {
 		return;
 	}
-	setDefault(GraphType(type),false);
-	//m_minmax.inputChanged(true);
+	setDefault(GraphType(type), false);
+	m_minmax.inputChanged(true); //have to change min&max for new graph type if switch from parametrical to standard
 	setSteps();
 	recountAnyway();
 	pWindow->redraw();
 }
 
 void Graph::showHideWidgets() {
-	auto glambda = [](auto a,bool b) {
+	auto glambda = [](auto a, bool b) {
 		gtk_widget_set_no_show_all(a, !b);
 		showHideWidget(a, b);
 	};
@@ -208,33 +207,31 @@ void Graph::showHideWidgets() {
 	glambda(m_entry[2], m_type != GraphType::SIMPLE);
 
 	gtk_widget_set_no_show_all(m_minmax.m_box, m_type == GraphType::SIMPLE);
-	if(m_type == GraphType::SIMPLE){
+	if (m_type == GraphType::SIMPLE) {
 		gtk_widget_hide(m_minmax.m_box);
-	}
-	else{
-		gtk_widget_show_all(m_minmax.m_box);//need show all
+	} else {
+		gtk_widget_show_all(m_minmax.m_box); //need show all
 	}
 
 }
 
 void Graph::inputChanged(GtkWidget *w) {
-	if(!m_signals){
+	if (!m_signals) {
 		return;
 	}
 
-	int i=0;
-	const char* s=gtk_entry_get_text(GTK_ENTRY(w));
-	for(auto a:m_entry){
-		if(a==w){
-			if(i==2){//steps
-				if(setSteps()){
+	int i = 0;
+	const char *s = gtk_entry_get_text(GTK_ENTRY(w));
+	for (auto a : m_entry) {
+		if (a == w) {
+			if (i == 2) { //steps
+				if (setSteps()) {
 					recountAnyway();
 				}
 				pWindow->redraw();
-			}
-			else{
-				setFormula(s,i);
-				if(m_ok[i]){
+			} else {
+				setFormula(s, i);
+				if (m_ok[i]) {
 					recountAnyway();
 				}
 				pWindow->redraw();
@@ -245,7 +242,7 @@ void Graph::inputChanged(GtkWidget *w) {
 	}
 }
 
-void Graph::setFormula(std::string s,int i) {
+void Graph::setFormula(std::string s, int i) {
 	const std::string a[] = { "x", "a", "t" };
 	try {
 		m_formula[i] = s;
@@ -255,7 +252,7 @@ void Graph::setFormula(std::string s,int i) {
 		m_v.clear();
 		m_ok[i] = false;
 	}
-	addRemoveClass(m_entry[i], CERROR,!m_ok[i]);
+	addRemoveClass(m_entry[i], CERROR, !m_ok[i]);
 }
 
 double Graph::calculate(int i, double v) {
@@ -264,7 +261,7 @@ double Graph::calculate(int i, double v) {
 }
 
 void Graph::updateEnableClose() {
-	gtk_widget_set_sensitive (m_button, pWindow->m_g.size()>1);
+	gtk_widget_set_sensitive(m_button, pWindow->m_g.size() > 1);
 }
 
 bool Graph::setSteps() {
