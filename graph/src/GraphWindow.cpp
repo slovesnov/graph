@@ -16,7 +16,6 @@
 GraphWindow *pWindow;
 
 const std::string CONFIG_TAGS[] = { "version", "language" };
-const double APP_VERSION = 1.25; //format("%.2lf",)
 const std::string URL = "http://slovesnov.users.sourceforge.net?graph";
 const int startGraphs = 1;
 
@@ -201,7 +200,7 @@ GraphWindow::~GraphWindow() {
 		delete a;
 	}
 
-	WRITE_CONFIG(CONFIG_TAGS, APP_VERSION, m_language);
+	WRITE_CONFIG(CONFIG_TAGS, ExpressionEstimator::version, m_language);
 }
 
 void GraphWindow::changeLanguage(int language) {
@@ -479,7 +478,7 @@ void GraphWindow::createLanguageCombo() {
 
 void GraphWindow::updateLanguage() {
 	std::string s = getLanguageString(PLOTTER) + std::string(" (")
-			+ getLanguageString(VERSION) + " " + forma(APP_VERSION) + ")";
+			+ getLanguageString(VERSION) + " " + forma(ExpressionEstimator::version) + ")";
 	gtk_window_set_title(GTK_WINDOW(m_window), s.c_str());
 
 	gtk_button_set_label(GTK_BUTTON(m_resetbutton), getLanguageString(RESET));
