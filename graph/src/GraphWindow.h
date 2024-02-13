@@ -61,6 +61,8 @@ public:
 	void mouseButtonUp(GdkEventButton *event);
 	void mouseMove(GdkEventButton *event);
 	void mouseLeave(GdkEventCrossing *event);
+	gboolean keyPress(GdkEventKey *event);
+
 
 	double fromScreenX(int v);
 	double fromScreenY(int v);

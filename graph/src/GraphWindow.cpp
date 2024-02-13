@@ -57,6 +57,12 @@ static gboolean mouse_leave_event(GtkWidget *widget, GdkEventCrossing *event,
 	return TRUE;
 }
 
+static gboolean key_press(GtkWidget *widget, GdkEventKey *event,
+		gpointer data) {
+	//println("%x %x %s",event->keyval,event->hardware_keycode,event->string)
+	return pWindow->keyPress(event);
+}
+
 static gboolean combo_changed(GtkComboBox *comboBox, gpointer) {
 	pWindow->changeLanguage(gtk_combo_box_get_active(comboBox));
 	return TRUE;
@@ -155,7 +161,7 @@ GraphWindow::GraphWindow() {
 			NULL);
 
 	gtk_widget_add_events(m_area,
-			GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
+			GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_KEY_PRESS_MASK
 					| GDK_POINTER_MOTION_MASK | GDK_LEAVE_NOTIFY_MASK);
 	g_signal_connect(m_area, "button_press_event",
 			G_CALLBACK(mouse_press_event), NULL);
@@ -165,6 +171,7 @@ GraphWindow::GraphWindow() {
 			G_CALLBACK(mouse_move_event), NULL);
 	g_signal_connect(m_area, "leave-notify-event",
 			G_CALLBACK(mouse_leave_event), NULL);
+	g_signal_connect(m_window, "key-press-event", G_CALLBACK (key_press), NULL);
 
 	gtk_widget_set_vexpand(m_area, 1);
 
@@ -524,4 +531,22 @@ void GraphWindow::updateEnableClose() {
 	for (auto &a : m_g) {
 		a->updateEnableClose();
 	}
+}
+
+gboolean GraphWindow::keyPress(GdkEventKey *event) {
+//	from gtk documentation return value
+//	TRUE to stop other handlers from being invoked for the event. FALSE to propagate the event further.
+	const int k = event->keyval;
+	const guint16 hwkey = event->hardware_keycode;
+	bool b = hwkey == 'F' || oneOf(k, GDK_KEY_F11, GDK_KEY_Escape);
+	if (b) {
+		GdkWindow *gdk_window = gtk_widget_get_window(m_window);
+		GdkWindowState state = gdk_window_get_state(gdk_window);
+		if (state & GDK_WINDOW_STATE_FULLSCREEN) {
+			gtk_window_unfullscreen(GTK_WINDOW(m_window));
+		} else {
+			gtk_window_fullscreen(GTK_WINDOW(m_window));
+		}
+	}
+	return b;
 }
