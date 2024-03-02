@@ -534,11 +534,11 @@ void GraphWindow::updateEnableClose() {
 }
 
 gboolean GraphWindow::keyPress(GdkEventKey *event) {
-//	from gtk documentation return value
-//	TRUE to stop other handlers from being invoked for the event. FALSE to propagate the event further.
+	//	from gtk documentation return value
+	//	TRUE to stop other handlers from being invoked for the event. FALSE to propagate the event further.
+	//cann't use 'f' key to switch fullscreen because "floor()" function has f char
 	const int k = event->keyval;
-	const guint16 hwkey = event->hardware_keycode;
-	bool b = hwkey == 'F' || oneOf(k, GDK_KEY_F11, GDK_KEY_Escape);
+	bool b = oneOf(k, GDK_KEY_F11, GDK_KEY_Escape);
 	if (b) {
 		GdkWindow *gdk_window = gtk_widget_get_window(m_window);
 		GdkWindowState state = gdk_window_get_state(gdk_window);
