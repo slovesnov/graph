@@ -15,15 +15,17 @@
 #include "MinMaxBox.h"
 #include "Graph.h"
 
-enum {
+enum IBUTTON{
 	IBUTTON_PLUS,
 	IBUTTON_VIEWMAG_PLUS,
 	IBUTTON_VIEWMAG_MINUS,
+	IBUTTON_FULLSCREEN,
+	IBUTTON_RESET,
 	IBUTTON_HELP,
 	IBUTTON_SIZE
 };
 static std::string IMAGE_BUTTONS[] = { "plus.png", "viewmag+.png",
-		"viewmag-.png", "help.png" };
+		"viewmag-.png","fullscreen.png", "", "help.png" };
 static_assert(SIZEI(IMAGE_BUTTONS)==IBUTTON_SIZE);
 
 static const char *languageString[][64] = { { "plotter", "reset", "type",
@@ -41,7 +43,7 @@ public:
 	GtkWidget *m_window, *m_vb, *m_combo;
 	MinMaxBox m_xy[2];
 	GtkWidget *m_ibutton[IBUTTON_SIZE];
-	GtkWidget *m_resetbutton, *m_area, *m_coordinates;
+	GtkWidget *m_area, *m_coordinates;
 	static double adjustAxis(double v);
 	std::vector<Graph*> m_g;
 	int m_dragx, m_dragy, m_dragxe, m_dragye;
@@ -55,6 +57,7 @@ public:
 	void updateLanguage();
 
 	void clickButton(GtkWidget *widget);
+	void clickButton(IBUTTON i);
 	void draw(cairo_t *cr, int w, int h);
 
 	void mouseButtonDown(GdkEventButton *event);
@@ -62,7 +65,6 @@ public:
 	void mouseMove(GdkEventButton *event);
 	void mouseLeave(GdkEventCrossing *event);
 	gboolean keyPress(GdkEventKey *event);
-
 
 	double fromScreenX(int v);
 	double fromScreenY(int v);

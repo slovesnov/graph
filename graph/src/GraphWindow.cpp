@@ -129,17 +129,15 @@ GraphWindow::GraphWindow() {
 	i = 0;
 	for (auto &b : m_ibutton) {
 		b = m_ibutton[i] = gtk_button_new();
-		gtk_button_set_image(GTK_BUTTON(b), image(IMAGE_BUTTONS[i]));
+		if (i != IBUTTON_RESET) {
+			gtk_button_set_image(GTK_BUTTON(b), image(IMAGE_BUTTONS[i]));
+		}
 		g_signal_connect(G_OBJECT(b), "clicked", G_CALLBACK(button_clicked), 0);
 		if (i != IBUTTON_HELP) {
 			gtk_box_pack_start(GTK_BOX(hb), b, FALSE, FALSE, 0);
 		}
 		i++;
 	}
-
-	b = m_resetbutton = gtk_button_new();
-	g_signal_connect(G_OBJECT(b), "clicked", G_CALLBACK(button_clicked), 0);
-	gtk_box_pack_start(GTK_BOX(hb), b, FALSE, FALSE, 0);
 
 	i = 0;
 	for (auto &a : m_xy) {
@@ -216,16 +214,17 @@ void GraphWindow::changeLanguage(int language) {
 }
 
 void GraphWindow::clickButton(GtkWidget *widget) {
-	int i = 0, j;
+	clickButton(IBUTTON(INDEX_OF(widget, m_ibutton)));
+}
+
+void GraphWindow::clickButton(IBUTTON n) {
+	int i, j;
 	double k;
-	for (auto b : m_ibutton) {
-		if (widget == b) {
-			break;
-		}
-		i++;
-	}
-	if (i == IBUTTON_PLUS) {
-		std::vector<std::pair<int, int>> p;
+	std::vector<std::pair<int, int>> p;
+	GdkWindow *gdk_window;
+	GdkWindowState state;
+	switch (n) {
+	case IBUTTON_PLUS:
 		//color which appear minimal times, or minimal index if several colors appear same times
 		for (j = 0; j < int(m_vcolor.size()); j++) {
 			p.push_back( { j, 0 });
@@ -245,42 +244,55 @@ void GraphWindow::clickButton(GtkWidget *widget) {
 		gtk_widget_show_all(m_vb);
 		//redraw();//calls automatically
 		updateEnableClose();
-		return;
-	} else if (i == IBUTTON_VIEWMAG_PLUS || i == IBUTTON_VIEWMAG_MINUS
-			|| m_resetbutton == widget) {
-		if (m_resetbutton == widget) {
+		break;
 
-			if (m_g.size() == 1) {
-				m_g[0]->setDefault(GraphType::SIMPLE, true);
-				m_setaxisOnDraw = true;
-				redraw();
-			} else {
-				i = 0;
-				for (Graph *a : m_g) {
-					if (i) {
-						gtk_container_remove(GTK_CONTAINER(m_vb), a->m_box);
-						delete a;
-					} else {
-						a->setDefault(GraphType::SIMPLE, true);
-					}
-					i++;
-				}
-				m_g.erase(m_g.begin() + 1, m_g.end());
-				gtk_widget_show_all(m_vb);
-				updateEnableClose();
-				m_setaxisOnDraw = true;
-			}
-
-		} else {
-			k = i == IBUTTON_VIEWMAG_PLUS ? .5 : 2;
-			for (auto &a : m_xy) {
-				a.scale(k);
-			}
-			axisChanged();
+	case IBUTTON_VIEWMAG_PLUS:
+	case IBUTTON_VIEWMAG_MINUS:
+		k = n == IBUTTON_VIEWMAG_PLUS ? .5 : 2;
+		for (auto &a : m_xy) {
+			a.scale(k);
 		}
+		axisChanged();
+		break;
 
-	} else if (i == IBUTTON_HELP) {
+	case IBUTTON_FULLSCREEN:
+		gdk_window = gtk_widget_get_window(m_window);
+		state = gdk_window_get_state(gdk_window);
+		if (state & GDK_WINDOW_STATE_FULLSCREEN) {
+			gtk_window_unfullscreen(GTK_WINDOW(m_window));
+		} else {
+			gtk_window_fullscreen(GTK_WINDOW(m_window));
+		}
+		break;
+
+	case IBUTTON_RESET:
+		if (m_g.size() == 1) {
+			m_g[0]->setDefault(GraphType::SIMPLE, true);
+			m_setaxisOnDraw = true;
+			redraw();
+		} else {
+			i = 0;
+			for (Graph *a : m_g) {
+				if (i) {
+					gtk_container_remove(GTK_CONTAINER(m_vb), a->m_box);
+					delete a;
+				} else {
+					a->setDefault(GraphType::SIMPLE, true);
+				}
+				i++;
+			}
+			m_g.erase(m_g.begin() + 1, m_g.end());
+			gtk_widget_show_all(m_vb);
+			updateEnableClose();
+			m_setaxisOnDraw = true;
+		}
+		break;
+
+	case IBUTTON_HELP:
 		openURL(URL);
+		break;
+	default:
+		break;
 	}
 }
 
@@ -380,7 +392,7 @@ void GraphWindow::mouseButtonDown(GdkEventButton *event) {
 		m_dragx = event->x;
 		m_dragy = event->y;
 	} else if (event->button == 3) {
-		clickButton(m_ibutton[IBUTTON_VIEWMAG_MINUS]);
+		clickButton(IBUTTON_VIEWMAG_MINUS);
 	}
 }
 
@@ -485,10 +497,12 @@ void GraphWindow::createLanguageCombo() {
 
 void GraphWindow::updateLanguage() {
 	std::string s = getLanguageString(PLOTTER) + std::string(" (")
-			+ getLanguageString(VERSION) + " " + forma(ExpressionEstimator::version) + ")";
+			+ getLanguageString(VERSION) + " "
+			+ forma(ExpressionEstimator::version) + ")";
 	gtk_window_set_title(GTK_WINDOW(m_window), s.c_str());
 
-	gtk_button_set_label(GTK_BUTTON(m_resetbutton), getLanguageString(RESET));
+	gtk_button_set_label(GTK_BUTTON(m_ibutton[IBUTTON_RESET]),
+			getLanguageString(RESET));
 
 	for (auto &a : m_g) {
 		a->updateLanguage();
@@ -534,19 +548,13 @@ void GraphWindow::updateEnableClose() {
 }
 
 gboolean GraphWindow::keyPress(GdkEventKey *event) {
-	//	from gtk documentation return value
-	//	TRUE to stop other handlers from being invoked for the event. FALSE to propagate the event further.
-	//cann't use 'f' key to switch fullscreen because "floor()" function has f char
+//	from gtk documentation return value
+//	TRUE to stop other handlers from being invoked for the event. FALSE to propagate the event further.
+//cann't use 'f' key to switch fullscreen because "floor()" function has f char
 	const int k = event->keyval;
 	bool b = oneOf(k, GDK_KEY_F11, GDK_KEY_Escape);
 	if (b) {
-		GdkWindow *gdk_window = gtk_widget_get_window(m_window);
-		GdkWindowState state = gdk_window_get_state(gdk_window);
-		if (state & GDK_WINDOW_STATE_FULLSCREEN) {
-			gtk_window_unfullscreen(GTK_WINDOW(m_window));
-		} else {
-			gtk_window_fullscreen(GTK_WINDOW(m_window));
-		}
+		pWindow->clickButton(IBUTTON_FULLSCREEN);
 	}
 	return b;
 }
