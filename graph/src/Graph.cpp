@@ -283,3 +283,7 @@ bool Graph::setSteps() {
 	addClass(w, CERROR);
 	return false;
 }
+
+bool Graph::inEntry(GtkWidget *w) {
+	return m_minmax.inEntry(w) || oneOf(w, m_entry, SIZEI(m_entry));
+}

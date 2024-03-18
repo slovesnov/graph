@@ -39,6 +39,7 @@ public:
 	void setName(const char *s);
 	bool ok();
 	void updateEntryColor(int i);
+	bool inEntry(GtkWidget *w);
 };
 
 #endif /* MINMAXBOX_H_ */

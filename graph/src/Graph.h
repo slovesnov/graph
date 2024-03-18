@@ -48,6 +48,7 @@ public:
 	double calculate(int i, double v);
 	void updateEnableClose();
 	bool setSteps();
+	bool inEntry(GtkWidget *w);
 };
 
 #endif /* GRAPH_H_ */

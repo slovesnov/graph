@@ -173,3 +173,7 @@ bool MinMaxBox::ok() {
 void MinMaxBox::updateEntryColor(int i) {
 	addRemoveClass(m_entry[i], CERROR, !m_ok[i]); //red font
 }
+
+bool MinMaxBox::inEntry(GtkWidget *w) {
+	return oneOf(w, m_entry, SIZEI(m_entry));
+}

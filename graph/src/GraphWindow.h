@@ -86,7 +86,6 @@ public:
 	void removeGraph(GtkWidget *w);
 	void redraw();
 	void updateEnableClose();
-
 };
 
 #endif /* GRAPHWINDOW_H_ */
