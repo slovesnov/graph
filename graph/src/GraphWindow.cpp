@@ -551,27 +551,26 @@ gboolean GraphWindow::keyPress(GdkEventKey *event) {
 //	from gtk documentation return value
 //	TRUE to stop other handlers from being invoked for the event. FALSE to propagate the event further.
 //cann't use 'f' key to switch fullscreen if focused in one of the entries because "floor()" function has f char
-	GtkWidget*w=gtk_window_get_focus (GTK_WINDOW(m_window));
-	bool b=false;
-	for(auto& e:m_xy){
-		if(e.inEntry(w)){
-			b=true;
+	GtkWidget *w = gtk_window_get_focus(GTK_WINDOW(m_window));
+	bool b = false;
+	for (auto &e : m_xy) {
+		if (e.inEntry(w)) {
+			b = true;
 			break;
 		}
 	}
-	if(!b){
+	if (!b) {
 		for (auto e : m_g) {
-			if(e->inEntry(w)){
-				b=true;
+			if (e->inEntry(w)) {
+				b = true;
 				break;
 			}
 		}
 	}
 
 	const int k = event->keyval;
-	const guint16 hwkey=event->hardware_keycode;
-	printl(b,hwkey,'F')
-	b = (!b && hwkey==GDK_KEY_F) || oneOf(k, GDK_KEY_F11, GDK_KEY_Escape);
+	const guint16 hwkey = event->hardware_keycode;
+	b = (!b && hwkey == GDK_KEY_F) || oneOf(k, GDK_KEY_F11, GDK_KEY_Escape);
 	if (b) {
 		clickButton(IBUTTON_FULLSCREEN);
 	}
