@@ -97,7 +97,7 @@ public:
 	void updateEnableClose();
 	void save();
 	void load();
-	void clearGraphs();
+	void clearGraphs(bool removeFromContainer=true);
 	void addGraph(GraphType type, int colorIndex);
 	std::string filechooser(bool save);
 	void getp(double &min, double &max, int &w);

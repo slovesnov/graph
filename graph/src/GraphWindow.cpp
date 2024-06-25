@@ -202,7 +202,7 @@ GraphWindow::GraphWindow() {
 }
 
 GraphWindow::~GraphWindow() {
-	clearGraphs();
+	clearGraphs(false);
 	WRITE_CONFIG(CONFIG_TAGS, ExpressionEstimator::version, m_language);
 }
 
@@ -216,7 +216,7 @@ void GraphWindow::clickButton(GtkWidget *widget) {
 }
 
 void GraphWindow::clickButton(IBUTTON n) {
-	int i, j;
+	int i;
 	double k;
 	std::vector<std::pair<int, int>> p;
 	GdkWindow *gdk_window;
@@ -224,44 +224,30 @@ void GraphWindow::clickButton(IBUTTON n) {
 	switch (n) {
 	case IBUTTON_PLUS:
 		//color which appear minimal times, or minimal index if several colors appear same times
-		for (j = 0; j < int(m_vcolor.size()); j++) {
-			p.push_back( { j, 0 });
+		for (i = 0; i < int(m_vcolor.size()); i++) {
+			p.push_back( { i, 0 });
 		}
 		for (auto &a : m_g) {
 			p[a->m_colorIndex].second++;
 		}
-		j = std::min_element(p.begin(), p.end(),
+		i = std::min_element(p.begin(), p.end(),
 				[](auto &a, auto &b) {
 					return a.second < b.second
 							|| (a.first < b.first && a.second == b.second);
 				})->first;
-		addGraph(GraphType::SIMPLE, j);
+		addGraph(GraphType::SIMPLE, i);
 		gtk_widget_show_all(m_vb);
 		//redraw();//calls automatically
 		updateEnableClose();
 		break;
 
 	case IBUTTON_RESET:
-		if (m_g.size() == 1) {
-			m_g[0]->setDefault(GraphType::SIMPLE, true, true);
-			m_setaxisOnDraw = true;
-			redraw();
-		} else {
-			i = 0;
-			for (Graph *a : m_g) {
-				if (i) {
-					gtk_container_remove(GTK_CONTAINER(m_vb), a->m_box);
-					delete a;
-				} else {
-					a->setDefault(GraphType::SIMPLE, true, true);
-				}
-				i++;
-			}
-			m_g.erase(m_g.begin() + 1, m_g.end());
-			gtk_widget_show_all(m_vb);
-			updateEnableClose();
-			m_setaxisOnDraw = true;
-		}
+		clearGraphs();
+		m_setaxisOnDraw = true;
+		addGraph(GraphType::SIMPLE, 0);
+		gtk_widget_show_all(m_vb);
+		//redraw();//calls automatically
+		updateEnableClose();
 		break;
 
 	case IBUTTON_LOAD:
@@ -634,9 +620,6 @@ void GraphWindow::load() {
 	s = trim(buffer.str());
 	VString v = split(s, "\n"), t;
 	size_t i, j, k;
-	for (Graph *a : m_g) {
-		gtk_container_remove(GTK_CONTAINER(m_vb), a->m_box);
-	}
 	clearGraphs();
 	for (i = 1; i < v.size(); i++) {
 		t = split(v[i], SEPARATOR);
@@ -669,7 +652,12 @@ void GraphWindow::load() {
 	updateEnableClose();
 }
 
-void GraphWindow::clearGraphs() {
+void GraphWindow::clearGraphs(bool removeFromContainer) {
+	if(removeFromContainer){
+		for (Graph *a : m_g) {
+			gtk_container_remove(GTK_CONTAINER(m_vb), a->m_box);
+		}
+	}
 	for (auto &a : m_g) {
 		delete a;
 	}
