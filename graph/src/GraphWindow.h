@@ -102,7 +102,6 @@ public:
 	void clearGraphs(bool removeFromContainer=true);
 	void addGraph(GraphType type, int colorIndex);
 	std::string filechooser(bool save);
-	void getp(double &min, double &max, int &w);
 	void updateTriangleButton();
 	bool getTiangleState();
 };

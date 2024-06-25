@@ -369,11 +369,9 @@ void GraphWindow::draw(cairo_t *cr, int w, int h) {
 		if(!a.m_show){
 			continue;
 		}
-		//TODO
 		if (a.m_type == GraphType::SIMPLE) {
-			double minx,maxx;
-			getp(minx,maxx,w);
-			a.recount(minx, maxx, w);
+//			printl(w)
+			a.recount(fromScreenX(0), fromScreenX(w), w);
 		}
 		gdk_cairo_set_source_rgba(cr,
 				&m_vcolor[a.m_colorIndex % m_vcolor.size()]);
@@ -718,14 +716,8 @@ std::string GraphWindow::filechooser(bool save) {
 	return s;
 }
 
-void GraphWindow::getp(double&minx,double&maxx,int& w){
-	w=gtk_widget_get_allocated_width(m_area);
-	minx = fromScreenX(0);
-	maxx = fromScreenX(w);
-}
-
 void GraphWindow::updateTriangleButton(){
-	gtk_button_set_image(GTK_BUTTON(m_ibutton[IBUTTON_TRIANGLE]), image(!getTiangleState()?TRIANGLE_DOWN:TRIANGLE_UP));
+	gtk_button_set_image(GTK_BUTTON(m_ibutton[IBUTTON_TRIANGLE]), image(getTiangleState()?TRIANGLE_UP:TRIANGLE_DOWN));
 }
 
 bool GraphWindow::getTiangleState(){

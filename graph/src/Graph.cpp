@@ -116,17 +116,10 @@ void Graph::recountAnyway() {
 	if (m_steps == 0 || !m_minmax.ok()) {
 		return;
 	}
-	//need for load() TODO
-	if (m_type == GraphType::SIMPLE) {
-		double minx,maxx;
-		int w;
-		pWindow->getp(minx,maxx,w);
-		recount(minx, maxx, w);
-	}
 
 	//DO NOT REMOVE
 	if((m_minmax.m_max - m_minmax.m_min) / m_steps==0){
-		printl("error",int(m_type))
+		printl("error",int(m_type),m_minmax.m_max, m_minmax.m_min, m_steps)
 		exit(0);
 	}
 	for (v = m_minmax.m_min; v <= m_minmax.m_max;
