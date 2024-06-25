@@ -17,25 +17,33 @@
 
 enum IBUTTON{
 	IBUTTON_PLUS,
+	IBUTTON_RESET,
+	IBUTTON_LOAD,
+	IBUTTON_SAVE,
 	IBUTTON_VIEWMAG_PLUS,
 	IBUTTON_VIEWMAG_MINUS,
 	IBUTTON_FULLSCREEN,
-	IBUTTON_RESET,
+	IBUTTON_TRIANGLE,
 	IBUTTON_HELP,
+	IBUTTON_OFF,
+	IBUTTON_ON,
 	IBUTTON_SIZE
 };
-static std::string IMAGE_BUTTONS[] = { "plus.png", "viewmag+.png",
-		"viewmag-.png","fullscreen.png", "", "help.png" };
+static std::string IMAGE_BUTTONS[] = { "plus.png","new.png","folder.png","save.png", "viewmag+.png",
+		"viewmag-.png","fullscreen.png","triangleup.png", "help.png","off.png","on.png" };
 static_assert(SIZEI(IMAGE_BUTTONS)==IBUTTON_SIZE);
 
-static const char *languageString[][64] = { { "plotter", "reset", "type",
-		"standard", "polar (a is angle)", "parametrical", "steps", "version" },
-		{ "построитель графиков", "сброс", "тип", "стандартный",
-				"пол€рный (a - угол)", "параметрический", "шагов", "верси€" } };
+static const char *languageString[][64] = { { "plotter", "type",
+		"standard", "polar (a is angle)", "parametrical", "steps", "version","cancel","open","save","graph files" },
+		{ "построитель графиков", "тип", "стандартный",
+				"пол€рный (a - угол)", "параметрический", "шагов", "верси€","отмена","открыть","сохранить","файлы графиков" } };
 
 enum STRING_ENUM {
-	PLOTTER, RESET, TYPE, STANDARD, POLAR, PARAMETRICAL, STEPS, VERSION
+	PLOTTER, TYPE, STANDARD, POLAR, PARAMETRICAL, STEPS, VERSION,CANCEL,OPEN,SAVE,GRAPH_FILES
 };
+
+const char DEFAULT_NAME[]="untitled";
+const char DEFAULT_EXTENSION[]="gr";
 
 class GraphWindow {
 public:
@@ -50,6 +58,7 @@ public:
 	static const int NO_DRAG = -1;
 	std::vector<GdkRGBA> m_vcolor;
 	bool m_setaxisOnDraw;
+	std::string m_path;
 
 	GraphWindow();
 	virtual ~GraphWindow();
@@ -86,6 +95,14 @@ public:
 	void removeGraph(GtkWidget *w);
 	void redraw();
 	void updateEnableClose();
+	void save();
+	void load();
+	void clearGraphs();
+	void addGraph(GraphType type, int colorIndex);
+	std::string filechooser(bool save);
+	void getp(double &min, double &max, int &w);
+
 };
+
 
 #endif /* GRAPHWINDOW_H_ */

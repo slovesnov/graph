@@ -84,6 +84,7 @@ GraphWindow::GraphWindow() {
 	pWindow = this;
 	loadConfig();
 	m_setaxisOnDraw = true;
+	m_path=DEFAULT_NAME+std::string(".")+DEFAULT_EXTENSION;
 
 	loadCSS();
 	//load colors
@@ -129,11 +130,9 @@ GraphWindow::GraphWindow() {
 	i = 0;
 	for (auto &b : m_ibutton) {
 		b = m_ibutton[i] = gtk_button_new();
-		if (i != IBUTTON_RESET) {
-			gtk_button_set_image(GTK_BUTTON(b), image(IMAGE_BUTTONS[i]));
-		}
+		gtk_button_set_image(GTK_BUTTON(b), image(IMAGE_BUTTONS[i]));
 		g_signal_connect(G_OBJECT(b), "clicked", G_CALLBACK(button_clicked), 0);
-		if (i != IBUTTON_HELP) {
+		if (i < int(IBUTTON_HELP)) {
 			gtk_box_pack_start(GTK_BOX(hb), b, FALSE, FALSE, 0);
 		}
 		i++;
@@ -152,7 +151,9 @@ GraphWindow::GraphWindow() {
 	createLanguageCombo();
 	gtk_box_pack_start(GTK_BOX(hb), m_combo, FALSE, FALSE, 0);
 
-	gtk_box_pack_start(GTK_BOX(hb), m_ibutton[IBUTTON_HELP], FALSE, FALSE, 0);
+	for(i=IBUTTON_HELP;i<IBUTTON_SIZE;i++){
+		gtk_box_pack_start(GTK_BOX(hb), m_ibutton[i], FALSE, FALSE, 0);
+	}
 
 	m_area = gtk_drawing_area_new();
 	g_signal_connect(G_OBJECT (m_area), "draw", G_CALLBACK (draw_callback),
@@ -173,7 +174,7 @@ GraphWindow::GraphWindow() {
 
 	gtk_widget_set_vexpand(m_area, 1);
 
-	m_vb = gtk_box_new(GTK_ORIENTATION_VERTICAL, 3);
+	m_vb = gtk_box_new(GTK_ORIENTATION_VERTICAL, 1);
 	gtk_container_add(GTK_CONTAINER(m_vb), hb);
 
 	for (auto &a : m_g) {
@@ -201,10 +202,7 @@ GraphWindow::GraphWindow() {
 }
 
 GraphWindow::~GraphWindow() {
-	for (auto &a : m_g) {
-		delete a;
-	}
-
+	clearGraphs();
 	WRITE_CONFIG(CONFIG_TAGS, ExpressionEstimator::version, m_language);
 }
 
@@ -237,13 +235,41 @@ void GraphWindow::clickButton(IBUTTON n) {
 					return a.second < b.second
 							|| (a.first < b.first && a.second == b.second);
 				})->first;
-		i = m_g.size();
-		m_g.push_back(new Graph(GraphType::SIMPLE, j));
-		gtk_container_add(GTK_CONTAINER(m_vb), m_g[i]->m_box);
-		gtk_box_reorder_child(GTK_BOX(m_vb), m_g[i]->m_box, i + 1);
+		addGraph(GraphType::SIMPLE, j);
 		gtk_widget_show_all(m_vb);
 		//redraw();//calls automatically
 		updateEnableClose();
+		break;
+
+	case IBUTTON_RESET:
+		if (m_g.size() == 1) {
+			m_g[0]->setDefault(GraphType::SIMPLE, true, true);
+			m_setaxisOnDraw = true;
+			redraw();
+		} else {
+			i = 0;
+			for (Graph *a : m_g) {
+				if (i) {
+					gtk_container_remove(GTK_CONTAINER(m_vb), a->m_box);
+					delete a;
+				} else {
+					a->setDefault(GraphType::SIMPLE, true, true);
+				}
+				i++;
+			}
+			m_g.erase(m_g.begin() + 1, m_g.end());
+			gtk_widget_show_all(m_vb);
+			updateEnableClose();
+			m_setaxisOnDraw = true;
+		}
+		break;
+
+	case IBUTTON_LOAD:
+		load();
+		break;
+
+	case IBUTTON_SAVE:
+		save();
 		break;
 
 	case IBUTTON_VIEWMAG_PLUS:
@@ -265,27 +291,16 @@ void GraphWindow::clickButton(IBUTTON n) {
 		}
 		break;
 
-	case IBUTTON_RESET:
-		if (m_g.size() == 1) {
-			m_g[0]->setDefault(GraphType::SIMPLE, true);
-			m_setaxisOnDraw = true;
-			redraw();
-		} else {
-			i = 0;
-			for (Graph *a : m_g) {
-				if (i) {
-					gtk_container_remove(GTK_CONTAINER(m_vb), a->m_box);
-					delete a;
-				} else {
-					a->setDefault(GraphType::SIMPLE, true);
-				}
-				i++;
-			}
-			m_g.erase(m_g.begin() + 1, m_g.end());
-			gtk_widget_show_all(m_vb);
-			updateEnableClose();
-			m_setaxisOnDraw = true;
+	case IBUTTON_TRIANGLE:
+		break;
+
+	case IBUTTON_ON:
+	case IBUTTON_OFF:
+		for(auto a:m_g){
+			a->m_show=n==IBUTTON_ON;
+			a->updateButton1();
 		}
+		redraw();
 		break;
 
 	case IBUTTON_HELP:
@@ -339,9 +354,6 @@ void GraphWindow::draw(cairo_t *cr, int w, int h) {
 
 	cairo_set_line_width(cr, 1.5);
 
-	double minx = fromScreenX(0);
-	double maxx = fromScreenX(w);
-
 //	cairo_matrix_t save_matrix;
 //	cairo_get_matrix(cr, &save_matrix);
 //	cairo_translate(cr, w / 2., h / 2.);
@@ -351,9 +363,18 @@ void GraphWindow::draw(cairo_t *cr, int w, int h) {
 //	cairo_arc(cr, w / 2., h / 2., w / 2., 0, 2 * M_PI);
 //	cairo_arc(cr, w / 2., h / 2., h / 2., 0, 2 * M_PI);
 
+//	int i=-1;
 	for (auto &b : m_g) {
 		auto &a = *b;
+//		i++;
+//		printl(i,a.m_show,a.m_points)
+		if(!a.m_show){
+			continue;
+		}
+		//TODO
 		if (a.m_type == GraphType::SIMPLE) {
+			double minx,maxx;
+			getp(minx,maxx,w);
 			a.recount(minx, maxx, w);
 		}
 		gdk_cairo_set_source_rgba(cr,
@@ -365,10 +386,17 @@ void GraphWindow::draw(cairo_t *cr, int w, int h) {
 			}
 			x = toScreenX(p.x);
 			y = toScreenY(p.y);
-			//fixed 31jan24 without condition need to stroke after every cairo_line_to
-			if (x >= 0 && y >= 0 && x <= w && y <= h) {
-				cairo_move_to(cr, x, y);
-				cairo_line_to(cr, x + 1, y + 1);
+			if (a.m_points) {
+				cairo_arc(cr, x, y, 5, 0, 2 * G_PI);
+				cairo_close_path(cr);
+				cairo_stroke_preserve(cr);
+				cairo_fill(cr);
+			} else {
+				//fixed 31jan24 without condition need to stroke after every cairo_line_to
+				if (x >= 0 && y >= 0 && x <= w && y <= h) {
+					cairo_move_to(cr, x, y);
+					cairo_line_to(cr, x + 1, y + 1);
+				}
 			}
 		}
 		cairo_stroke(cr);
@@ -501,9 +529,6 @@ void GraphWindow::updateLanguage() {
 			+ forma(ExpressionEstimator::version) + ")";
 	gtk_window_set_title(GTK_WINDOW(m_window), s.c_str());
 
-	gtk_button_set_label(GTK_BUTTON(m_ibutton[IBUTTON_RESET]),
-			getLanguageString(RESET));
-
 	for (auto &a : m_g) {
 		a->updateLanguage();
 	}
@@ -525,7 +550,7 @@ void GraphWindow::loadConfig() {
 
 void GraphWindow::removeGraph(GtkWidget *w) {
 	for (auto it = m_g.begin(); it != m_g.end(); it++) {
-		if ((*it)->m_button == w) {
+		if ((*it)->m_button[BUTTON_REMOVE_INDEX] == w) {
 			Graph *a = *it;
 			m_g.erase(it);
 			gtk_container_remove(GTK_CONTAINER(m_vb), a->m_box);
@@ -575,4 +600,122 @@ gboolean GraphWindow::keyPress(GdkEventKey *event) {
 		clickButton(IBUTTON_FULLSCREEN);
 	}
 	return b;
+}
+
+void GraphWindow::save() {
+	std::string s = filechooser(true);
+	if (s.empty()) {
+		return;
+	}
+	m_path=s;
+	std::ofstream f(s);
+	s = forma(ExpressionEstimator::version) + "\n";
+	int i = 0;
+	for (auto a : m_xy) {
+		s += format("minmax_%c=", "xy"[i]) + " " + a.toString() + "\n";
+		i++;
+	}
+	for (auto a : m_g) {
+		s += a->toString() + "\n";
+	}
+	f << s;
+}
+
+void GraphWindow::load() {
+	std::string s = filechooser(false);
+	if (s.empty()) {
+		return;
+	}
+	m_path=s;
+
+	std::ifstream f(s);
+	std::stringstream buffer;
+	buffer << f.rdbuf();
+	s = trim(buffer.str());
+	VString v = split(s, "\n"), t;
+	size_t i, j, k;
+	for (Graph *a : m_g) {
+		gtk_container_remove(GTK_CONTAINER(m_vb), a->m_box);
+	}
+	clearGraphs();
+	for (i = 1; i < v.size(); i++) {
+		t = split(v[i], SEPARATOR);
+		k = 0;
+		for (j = 1; j < t.size(); j += 2) {
+			t[k++] = t[j];
+		}
+		t.resize(k);
+		if (i > 0 && i < 3) {
+			m_xy[i - 1].set(t[0], t[1]);
+			m_xy[i - 1].inputChanged();
+		} else {
+			int p[2] = { 0, 0 };
+			for (j = 0; j < 2; j++) {
+				parseString(t[j], p[j]);
+			}
+			addGraph(GraphType(p[0]), p[1]);
+			auto e = m_g.back();
+			e->setFormula(t[2], 0);
+			if (e->m_type != GraphType::SIMPLE) {
+				j = 3;
+				e->setStepsMinMax(t[j], t[j + 1], t[j + 2]);//before setFormula
+				if (e->m_type == GraphType::PARAMETRICAL) {
+					e->setFormula(t[j++], 1);
+				}
+			}
+		}
+	}
+	gtk_widget_show_all(m_vb);
+	updateEnableClose();
+}
+
+void GraphWindow::clearGraphs() {
+	for (auto &a : m_g) {
+		delete a;
+	}
+	m_g.clear();
+}
+
+void GraphWindow::addGraph(GraphType type, int colorIndex) {
+	auto i = m_g.size();
+	m_g.push_back(new Graph(type, colorIndex));
+	gtk_container_add(GTK_CONTAINER(m_vb), m_g[i]->m_box);
+	gtk_box_reorder_child(GTK_BOX(m_vb), m_g[i]->m_box, i + 1);
+}
+
+std::string GraphWindow::filechooser(bool save) {
+	std::string s;
+	auto l = save ? SAVE : OPEN;
+	GtkWidget *dialog = gtk_file_chooser_dialog_new(getLanguageString(l),
+			GTK_WINDOW(m_window),
+			save ? GTK_FILE_CHOOSER_ACTION_SAVE : GTK_FILE_CHOOSER_ACTION_OPEN,
+			getLanguageString(CANCEL), GTK_RESPONSE_CANCEL,
+			getLanguageString(l), GTK_RESPONSE_ACCEPT,
+			NULL);
+
+	gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), getFileInfo(m_path, FILEINFO::DIRECTORY).c_str());
+	if (save) {
+		gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER(dialog), getFileInfo(m_path, FILEINFO::NAME).c_str() );
+	}
+	auto gtkFilter = gtk_file_filter_new();
+	gtk_file_filter_set_name(gtkFilter, format("%s (*.%s)",getLanguageString(GRAPH_FILES),DEFAULT_EXTENSION).c_str());
+	gtk_file_filter_add_pattern(gtkFilter, format("*.%s",DEFAULT_EXTENSION).c_str());
+	gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), gtkFilter);
+	gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), gtkFilter);
+
+	gint response = gtk_dialog_run(GTK_DIALOG(dialog));
+	auto v = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+	if (response == GTK_RESPONSE_ACCEPT ) {
+		s = v;
+	}
+
+	gtk_widget_destroy(dialog);
+
+	return s;
+}
+
+void GraphWindow::getp(double&minx,double&maxx,int& w){
+	w=gtk_widget_get_allocated_width(m_area);
+	minx = fromScreenX(0);
+	maxx = fromScreenX(w);
 }
