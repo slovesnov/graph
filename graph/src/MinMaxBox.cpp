@@ -141,6 +141,10 @@ void MinMaxBox::inputChanged(bool redraw/*=true*/) {
 	}
 
 	if (!redraw) {
+		//TODO
+		if(ok()){
+			set(v[0], v[1]);
+		}
 		return;
 	}
 

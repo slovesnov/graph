@@ -295,8 +295,7 @@ void GraphWindow::clickButton(IBUTTON n) {
 	case IBUTTON_ON:
 	case IBUTTON_OFF:
 		for(auto a:m_g){
-			a->m_show=n==IBUTTON_ON;
-			a->updateButton1();
+			a->setUpdateButton1(n==IBUTTON_ON);
 		}
 		redraw();
 		break;
@@ -650,23 +649,26 @@ void GraphWindow::load() {
 				parseString(t[j], p[j]);
 			}
 			addGraph(GraphType(p[0]), p[1]);
-			auto e = m_g.back();
-			e->setFormula(t[2], 0);
+			Graph* e = m_g.back();
+			e->setFormula(t[j++], 0);
 			if (e->m_type != GraphType::SIMPLE) {
-				j = 3;
-				e->setStepsMinMax(t[j], t[j + 1], t[j + 2]);//before setFormula
 				if (e->m_type == GraphType::PARAMETRICAL) {
 					e->setFormula(t[j++], 1);
 				}
+				e->setStepsMinMax(t[j], t[j + 1], t[j + 2]);
+				j+=3;
 			}
+			e->setUpdateButton1(t[j]=="1");
+			e->recountAnyway();
 		}
 	}
 	gtk_widget_show_all(m_vb);
 	updateEnableClose();
 	updateTriangleButton();
+	redraw();
 }
 
-void GraphWindow::clearGraphs(bool removeFromContainer) {
+void GraphWindow::clearGraphs(bool removeFromContainer/*=true*/) {
 	if(removeFromContainer){
 		for (Graph *a : m_g) {
 			gtk_container_remove(GTK_CONTAINER(m_vb), a->m_box);

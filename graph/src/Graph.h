@@ -55,7 +55,7 @@ public:
 	std::string toString();
 	void setStepsMinMax(std::string& steps,std::string& min,std::string& max);
 	void buttonClicked(GtkWidget *w);
-	void updateButton1();
+	void setUpdateButton1(bool show);
 };
 
 #endif /* GRAPH_H_ */

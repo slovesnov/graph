@@ -35,7 +35,6 @@ static gboolean combo_changed(GtkComboBox *w, Graph*g) {
 
 Graph::Graph(GraphType type, int colorIndex) {
 	int i;
-	m_show = true;
 	m_signals = false;
 	m_colorIndex = colorIndex % pWindow->m_vcolor.size();
 	m_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3);
@@ -74,7 +73,7 @@ Graph::Graph(GraphType type, int colorIndex) {
 		g_signal_connect(G_OBJECT(b), "clicked", G_CALLBACK(button_clicked), this);
 		gtk_box_pack_start(GTK_BOX(m_box), b, FALSE, FALSE, 0);
 	}
-	updateButton1();
+	setUpdateButton1(true);
 
 	setDefault(type, false);
 
@@ -125,8 +124,9 @@ void Graph::recountAnyway() {
 		recount(minx, maxx, w);
 	}
 
+	//DO NOT REMOVE
 	if((m_minmax.m_max - m_minmax.m_min) / m_steps==0){
-		printl("error")
+		printl("error",int(m_type))
 		exit(0);
 	}
 	for (v = m_minmax.m_min; v <= m_minmax.m_max;
@@ -352,6 +352,7 @@ std::string Graph::toString() {
 	if (m_type != GraphType::SIMPLE) {
 		s += " minmax=" + m_minmax.toString();
 	}
+	s += format(" show=%c%d%c", SEPARATOR,int(m_show),SEPARATOR);
 	return s;
 }
 
@@ -367,13 +368,13 @@ void Graph::buttonClicked(GtkWidget *w) {
 	if (i == BUTTON_REMOVE_INDEX) {
 		pWindow->removeGraph(w);
 	} else {
-		m_show = !m_show;
-		updateButton1();
+		setUpdateButton1(!m_show);
 		pWindow->redraw();
 	}
 }
 
-void Graph::updateButton1() {
+void Graph::setUpdateButton1(bool show) {
+	m_show=show;
 	gtk_button_set_image(GTK_BUTTON(m_button[1]),
 			image(IMAGE_BUTTONS[m_show ? IBUTTON_ON : IBUTTON_OFF]));
 }
