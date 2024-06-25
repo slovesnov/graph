@@ -29,8 +29,10 @@ enum IBUTTON{
 	IBUTTON_ON,
 	IBUTTON_SIZE
 };
+const std::string TRIANGLE_UP="triangleup.png";
+const std::string TRIANGLE_DOWN="triangledown.png";
 static std::string IMAGE_BUTTONS[] = { "plus.png","new.png","folder.png","save.png", "viewmag+.png",
-		"viewmag-.png","fullscreen.png","triangleup.png", "help.png","off.png","on.png" };
+		"viewmag-.png","fullscreen.png",TRIANGLE_UP, "help.png","off.png","on.png" };
 static_assert(SIZEI(IMAGE_BUTTONS)==IBUTTON_SIZE);
 
 static const char *languageString[][64] = { { "plotter", "type",
@@ -101,7 +103,8 @@ public:
 	void addGraph(GraphType type, int colorIndex);
 	std::string filechooser(bool save);
 	void getp(double &min, double &max, int &w);
-
+	void updateTriangleButton();
+	bool getTiangleState();
 };
 
 

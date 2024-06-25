@@ -217,6 +217,7 @@ void GraphWindow::clickButton(GtkWidget *widget) {
 
 void GraphWindow::clickButton(IBUTTON n) {
 	int i;
+	bool b;
 	double k;
 	std::vector<std::pair<int, int>> p;
 	GdkWindow *gdk_window;
@@ -248,6 +249,7 @@ void GraphWindow::clickButton(IBUTTON n) {
 		gtk_widget_show_all(m_vb);
 		//redraw();//calls automatically
 		updateEnableClose();
+		updateTriangleButton();
 		break;
 
 	case IBUTTON_LOAD:
@@ -278,6 +280,16 @@ void GraphWindow::clickButton(IBUTTON n) {
 		break;
 
 	case IBUTTON_TRIANGLE:
+		b=getTiangleState();
+		for (auto &a : m_g) {
+			if(b){
+				gtk_widget_hide(a->m_box);
+			}
+			else{
+				gtk_widget_show(a->m_box);
+			}
+		}
+		updateTriangleButton();
 		break;
 
 	case IBUTTON_ON:
@@ -292,6 +304,7 @@ void GraphWindow::clickButton(IBUTTON n) {
 	case IBUTTON_HELP:
 		openURL(URL);
 		break;
+
 	default:
 		break;
 	}
@@ -650,6 +663,7 @@ void GraphWindow::load() {
 	}
 	gtk_widget_show_all(m_vb);
 	updateEnableClose();
+	updateTriangleButton();
 }
 
 void GraphWindow::clearGraphs(bool removeFromContainer) {
@@ -706,4 +720,12 @@ void GraphWindow::getp(double&minx,double&maxx,int& w){
 	w=gtk_widget_get_allocated_width(m_area);
 	minx = fromScreenX(0);
 	maxx = fromScreenX(w);
+}
+
+void GraphWindow::updateTriangleButton(){
+	gtk_button_set_image(GTK_BUTTON(m_ibutton[IBUTTON_TRIANGLE]), image(!getTiangleState()?TRIANGLE_DOWN:TRIANGLE_UP));
+}
+
+bool GraphWindow::getTiangleState(){
+	return gtk_widget_get_visible(m_g[0]->m_box);
 }
