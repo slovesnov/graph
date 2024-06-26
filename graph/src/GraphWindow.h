@@ -15,7 +15,7 @@
 #include "MinMaxBox.h"
 #include "Graph.h"
 
-enum IBUTTON{
+enum IBUTTON {
 	IBUTTON_PLUS,
 	IBUTTON_RESET,
 	IBUTTON_LOAD,
@@ -29,23 +29,35 @@ enum IBUTTON{
 	IBUTTON_ON,
 	IBUTTON_SIZE
 };
-const std::string TRIANGLE_UP="triangleup.png";
-const std::string TRIANGLE_DOWN="triangledown.png";
-static std::string IMAGE_BUTTONS[] = { "plus.png","new.png","folder.png","save.png", "viewmag+.png",
-		"viewmag-.png","fullscreen.png",TRIANGLE_UP, "help.png","off.png","on.png" };
+const std::string TRIANGLE_UP = "triangleup.png";
+const std::string TRIANGLE_DOWN = "triangledown.png";
+static std::string IMAGE_BUTTONS[] = { "plus.png", "new.png", "folder.png",
+		"save.png", "viewmag+.png", "viewmag-.png", "fullscreen.png",
+		TRIANGLE_UP, "help.png", "off.png", "on.png" };
 static_assert(SIZEI(IMAGE_BUTTONS)==IBUTTON_SIZE);
 
-static const char *languageString[][64] = { { "plotter", "type",
-		"standard", "polar (a is angle)", "parametrical", "steps", "version","cancel","open","save","graph files" },
-		{ "построитель графиков", "тип", "стандартный",
-				"пол€рный (a - угол)", "параметрический", "шагов", "верси€","отмена","открыть","сохранить","файлы графиков" } };
+static const char *languageString[][64] = { { "plotter", "type", "standard",
+		"polar (a is angle)", "parametrical", "steps", "version", "cancel",
+		"open", "save", "graph files" }, { "построитель графиков", "тип",
+		"стандартный", "пол€рный (a - угол)", "параметрический", "шагов",
+		"верси€", "отмена", "открыть", "сохранить", "файлы графиков" } };
 
 enum STRING_ENUM {
-	PLOTTER, TYPE, STANDARD, POLAR, PARAMETRICAL, STEPS, VERSION,CANCEL,OPEN,SAVE,GRAPH_FILES
+	PLOTTER,
+	TYPE,
+	STANDARD,
+	POLAR,
+	PARAMETRICAL,
+	STEPS,
+	VERSION,
+	CANCEL,
+	OPEN,
+	SAVE,
+	GRAPH_FILES
 };
 
-const char DEFAULT_NAME[]="untitled";
-const char DEFAULT_EXTENSION[]="gr";
+const char DEFAULT_NAME[] = "untitled";
+const char DEFAULT_EXTENSION[] = "gr";
 
 class GraphWindow {
 public:
@@ -99,12 +111,12 @@ public:
 	void updateEnableClose();
 	void save();
 	void load();
-	void clearGraphs(bool removeFromContainer=true);
+	void clearGraphs(bool removeFromContainer = true);
 	void addGraph(GraphType type, int colorIndex);
 	std::string filechooser(bool save);
 	void updateTriangleButton();
-	bool getTiangleState();
+	bool isGraphsVisible();
+	void setTitle();
 };
-
 
 #endif /* GRAPHWINDOW_H_ */

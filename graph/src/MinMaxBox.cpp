@@ -70,8 +70,8 @@ void MinMaxBox::set(std::string const s[]) {
 	inputChanged(false);
 }
 
-void MinMaxBox::set(std::string const& s1,std::string const& s2){
-	std::string s[]={s1,s2};
+void MinMaxBox::set(std::string const &s1, std::string const &s2) {
+	std::string s[] = { s1, s2 };
 	set(s);
 }
 
@@ -142,7 +142,7 @@ void MinMaxBox::inputChanged(bool redraw/*=true*/) {
 
 	if (!redraw) {
 		//TODO
-		if(ok()){
+		if (ok()) {
 			set(v[0], v[1]);
 		}
 		return;
@@ -187,14 +187,15 @@ bool MinMaxBox::inEntry(GtkWidget *w) {
 	return oneOf(w, m_entry, SIZEI(m_entry));
 }
 
-std::string MinMaxBox::toString(){
+std::string MinMaxBox::toString() {
 	std::string s;
-	int i=0;
-	for(auto a:m_entry){
-		if(i){
-			s+=' ';
+	int i = 0;
+	for (auto a : m_entry) {
+		if (i) {
+			s += ' ';
 		}
-		s+=format("%c%s%c",SEPARATOR,gtk_entry_get_text(GTK_ENTRY(a) ),SEPARATOR);
+		s += format("%c%s%c", SEPARATOR, gtk_entry_get_text(GTK_ENTRY(a)),
+				SEPARATOR);
 		i++;
 	}
 	return s;

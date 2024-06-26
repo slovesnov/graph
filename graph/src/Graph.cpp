@@ -20,15 +20,15 @@ const char *formula[] = { "tan(x)", "3*sin(3*a)", "3*cos(t)", "3*sin(t)" };
 const std::string GRAPH_PARAMETERS[] = { "0", "2*pi", "5 * 1000" }; //min,max,step
 
 //cann't use Graph *pGraph; because many graphs
-static void button_clicked(GtkWidget *w, Graph* g) {
+static void button_clicked(GtkWidget *w, Graph *g) {
 	g->buttonClicked(w);
 }
 
-static void input_changed(GtkWidget *w, Graph* g) {
+static void input_changed(GtkWidget *w, Graph *g) {
 	g->inputChanged(w);
 }
 
-static gboolean combo_changed(GtkComboBox *w, Graph*g) {
+static gboolean combo_changed(GtkComboBox *w, Graph *g) {
 	g->changeType(gtk_combo_box_get_active(w));
 	return TRUE;
 }
@@ -65,12 +65,13 @@ Graph::Graph(GraphType type, int colorIndex) {
 	gtk_box_pack_start(GTK_BOX(m_box), m_name[2], FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(m_box), m_entry[2], 0, 0, 0);
 
-	for(i=0;i<SIZEI(m_button);i++){
-		auto b = m_button[i]=gtk_button_new();
+	for (i = 0; i < SIZEI(m_button); i++) {
+		auto b = m_button[i] = gtk_button_new();
 		if (!i) {
 			gtk_button_set_image(GTK_BUTTON(b), image("minus.png"));
 		}
-		g_signal_connect(G_OBJECT(b), "clicked", G_CALLBACK(button_clicked), this);
+		g_signal_connect(G_OBJECT(b), "clicked", G_CALLBACK(button_clicked),
+				this);
 		gtk_box_pack_start(GTK_BOX(m_box), b, FALSE, FALSE, 0);
 	}
 	setUpdateButton1(true);
@@ -118,7 +119,7 @@ void Graph::recountAnyway() {
 	}
 
 	//DO NOT REMOVE
-	if((m_minmax.m_max - m_minmax.m_min) / m_steps==0){
+	if ((m_minmax.m_max - m_minmax.m_min) / m_steps == 0) {
 		printl("error",int(m_type),m_minmax.m_max, m_minmax.m_min, m_steps)
 		exit(0);
 	}
@@ -345,7 +346,7 @@ std::string Graph::toString() {
 	if (m_type != GraphType::SIMPLE) {
 		s += " minmax=" + m_minmax.toString();
 	}
-	s += format(" show=%c%d%c", SEPARATOR,int(m_show),SEPARATOR);
+	s += format(" show=%c%d%c", SEPARATOR, int(m_show), SEPARATOR);
 	return s;
 }
 
@@ -367,7 +368,7 @@ void Graph::buttonClicked(GtkWidget *w) {
 }
 
 void Graph::setUpdateButton1(bool show) {
-	m_show=show;
+	m_show = show;
 	gtk_button_set_image(GTK_BUTTON(m_button[1]),
 			image(IMAGE_BUTTONS[m_show ? IBUTTON_ON : IBUTTON_OFF]));
 }

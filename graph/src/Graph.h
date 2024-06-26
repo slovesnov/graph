@@ -23,7 +23,7 @@ enum class GraphType {
 	SIMPLE, POLAR, PARAMETRICAL
 };
 
-const int BUTTON_REMOVE_INDEX=0;
+const int BUTTON_REMOVE_INDEX = 0;
 
 class Graph {
 public:
@@ -35,11 +35,12 @@ public:
 	ExpressionEstimator m_estimator[2];
 	GraphType m_type;
 	std::vector<Point> m_v;
-	bool m_points,m_show;
+	bool m_points, m_show;
 	int m_colorIndex;
 
 	Graph(GraphType type, int colorIndex);
-	void setDefault(GraphType type, bool resetColor = false,bool recount=false);
+	void setDefault(GraphType type, bool resetColor = false, bool recount =
+			false);
 	void recount(double min, double max, int steps);
 	void recount();
 	void recountAnyway();
@@ -53,7 +54,7 @@ public:
 	bool setSteps();
 	bool inEntry(GtkWidget *w);
 	std::string toString();
-	void setStepsMinMax(std::string& steps,std::string& min,std::string& max);
+	void setStepsMinMax(std::string &steps, std::string &min, std::string &max);
 	void buttonClicked(GtkWidget *w);
 	void setUpdateButton1(bool show);
 };

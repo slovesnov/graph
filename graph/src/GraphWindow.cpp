@@ -84,7 +84,7 @@ GraphWindow::GraphWindow() {
 	pWindow = this;
 	loadConfig();
 	m_setaxisOnDraw = true;
-	m_path=DEFAULT_NAME+std::string(".")+DEFAULT_EXTENSION;
+	m_path = DEFAULT_NAME + std::string(".") + DEFAULT_EXTENSION;
 
 	loadCSS();
 	//load colors
@@ -151,7 +151,7 @@ GraphWindow::GraphWindow() {
 	createLanguageCombo();
 	gtk_box_pack_start(GTK_BOX(hb), m_combo, FALSE, FALSE, 0);
 
-	for(i=IBUTTON_HELP;i<IBUTTON_SIZE;i++){
+	for (i = IBUTTON_HELP; i < IBUTTON_SIZE; i++) {
 		gtk_box_pack_start(GTK_BOX(hb), m_ibutton[i], FALSE, FALSE, 0);
 	}
 
@@ -280,12 +280,11 @@ void GraphWindow::clickButton(IBUTTON n) {
 		break;
 
 	case IBUTTON_TRIANGLE:
-		b=getTiangleState();
+		b = isGraphsVisible();
 		for (auto &a : m_g) {
-			if(b){
+			if (b) {
 				gtk_widget_hide(a->m_box);
-			}
-			else{
+			} else {
 				gtk_widget_show(a->m_box);
 			}
 		}
@@ -294,8 +293,8 @@ void GraphWindow::clickButton(IBUTTON n) {
 
 	case IBUTTON_ON:
 	case IBUTTON_OFF:
-		for(auto a:m_g){
-			a->setUpdateButton1(n==IBUTTON_ON);
+		for (auto a : m_g) {
+			a->setUpdateButton1(n == IBUTTON_ON);
 		}
 		redraw();
 		break;
@@ -366,11 +365,10 @@ void GraphWindow::draw(cairo_t *cr, int w, int h) {
 		auto &a = *b;
 //		i++;
 //		printl(i,a.m_show,a.m_points)
-		if(!a.m_show){
+		if (!a.m_show) {
 			continue;
 		}
 		if (a.m_type == GraphType::SIMPLE) {
-//			printl(w)
 			a.recount(fromScreenX(0), fromScreenX(w), w);
 		}
 		gdk_cairo_set_source_rgba(cr,
@@ -520,10 +518,7 @@ void GraphWindow::createLanguageCombo() {
 }
 
 void GraphWindow::updateLanguage() {
-	std::string s = getLanguageString(PLOTTER) + std::string(" (")
-			+ getLanguageString(VERSION) + " "
-			+ forma(ExpressionEstimator::version) + ")";
-	gtk_window_set_title(GTK_WINDOW(m_window), s.c_str());
+	setTitle();
 
 	for (auto &a : m_g) {
 		a->updateLanguage();
@@ -603,7 +598,8 @@ void GraphWindow::save() {
 	if (s.empty()) {
 		return;
 	}
-	m_path=s;
+	m_path = s;
+	setTitle();
 	std::ofstream f(s);
 	s = forma(ExpressionEstimator::version) + "\n";
 	int i = 0;
@@ -622,8 +618,8 @@ void GraphWindow::load() {
 	if (s.empty()) {
 		return;
 	}
-	m_path=s;
-
+	m_path = s;
+	setTitle();
 	std::ifstream f(s);
 	std::stringstream buffer;
 	buffer << f.rdbuf();
@@ -647,16 +643,16 @@ void GraphWindow::load() {
 				parseString(t[j], p[j]);
 			}
 			addGraph(GraphType(p[0]), p[1]);
-			Graph* e = m_g.back();
+			Graph *e = m_g.back();
 			e->setFormula(t[j++], 0);
 			if (e->m_type != GraphType::SIMPLE) {
 				if (e->m_type == GraphType::PARAMETRICAL) {
 					e->setFormula(t[j++], 1);
 				}
 				e->setStepsMinMax(t[j], t[j + 1], t[j + 2]);
-				j+=3;
+				j += 3;
 			}
-			e->setUpdateButton1(t[j]=="1");
+			e->setUpdateButton1(t[j] == "1");
 			e->recountAnyway();
 		}
 	}
@@ -667,7 +663,7 @@ void GraphWindow::load() {
 }
 
 void GraphWindow::clearGraphs(bool removeFromContainer/*=true*/) {
-	if(removeFromContainer){
+	if (removeFromContainer) {
 		for (Graph *a : m_g) {
 			gtk_container_remove(GTK_CONTAINER(m_vb), a->m_box);
 		}
@@ -695,19 +691,24 @@ std::string GraphWindow::filechooser(bool save) {
 			getLanguageString(l), GTK_RESPONSE_ACCEPT,
 			NULL);
 
-	gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), getFileInfo(m_path, FILEINFO::DIRECTORY).c_str());
+	gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog),
+			getFileInfo(m_path, FILEINFO::DIRECTORY).c_str());
 	if (save) {
-		gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER(dialog), getFileInfo(m_path, FILEINFO::NAME).c_str() );
+		gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog),
+				getFileInfo(m_path, FILEINFO::NAME).c_str());
 	}
 	auto gtkFilter = gtk_file_filter_new();
-	gtk_file_filter_set_name(gtkFilter, format("%s (*.%s)",getLanguageString(GRAPH_FILES),DEFAULT_EXTENSION).c_str());
-	gtk_file_filter_add_pattern(gtkFilter, format("*.%s",DEFAULT_EXTENSION).c_str());
+	gtk_file_filter_set_name(gtkFilter,
+			format("%s (*.%s)", getLanguageString(GRAPH_FILES),
+					DEFAULT_EXTENSION).c_str());
+	gtk_file_filter_add_pattern(gtkFilter,
+			format("*.%s", DEFAULT_EXTENSION).c_str());
 	gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), gtkFilter);
 	gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), gtkFilter);
 
 	gint response = gtk_dialog_run(GTK_DIALOG(dialog));
 	auto v = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-	if (response == GTK_RESPONSE_ACCEPT ) {
+	if (response == GTK_RESPONSE_ACCEPT) {
 		s = v;
 	}
 
@@ -716,10 +717,19 @@ std::string GraphWindow::filechooser(bool save) {
 	return s;
 }
 
-void GraphWindow::updateTriangleButton(){
-	gtk_button_set_image(GTK_BUTTON(m_ibutton[IBUTTON_TRIANGLE]), image(getTiangleState()?TRIANGLE_UP:TRIANGLE_DOWN));
+void GraphWindow::updateTriangleButton() {
+	gtk_button_set_image(GTK_BUTTON(m_ibutton[IBUTTON_TRIANGLE]),
+			image(isGraphsVisible() ? TRIANGLE_UP : TRIANGLE_DOWN));
 }
 
-bool GraphWindow::getTiangleState(){
+bool GraphWindow::isGraphsVisible() {
 	return gtk_widget_get_visible(m_g[0]->m_box);
+}
+
+void GraphWindow::setTitle() {
+	std::string s = getFileInfo(m_path, FILEINFO::NAME) + " - "
+			+ getLanguageString(PLOTTER) + std::string(" (")
+			+ getLanguageString(VERSION) + " "
+			+ forma(ExpressionEstimator::version) + ")";
+	gtk_window_set_title(GTK_WINDOW(m_window), s.c_str());
 }

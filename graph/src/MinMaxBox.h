@@ -15,7 +15,7 @@
 const char CERROR[] = "cerror";
 const double MINY = -5;
 const double MAXY = -MINY;
-const char SEPARATOR='\'';
+const char SEPARATOR = '\'';
 
 class Graph;
 
@@ -31,7 +31,7 @@ public:
 	void init(const char *name, bool invert = false, bool xy = true);
 	void set(double mins, double maxs, bool _updateEntries = false);
 	void set(std::string const s[]);
-	void set(std::string const& s1,std::string const& s2);
+	void set(std::string const &s1, std::string const &s2);
 	void setSize(int size);
 	double toScreen(double v);
 	double fromScreen(int v);
