@@ -91,7 +91,7 @@ void Graph::recount() {
 }
 
 void Graph::recount(double min, double max, int steps) {
-	if (!m_ok[0] || (!m_ok[1] && m_type == GraphType::PARAMETRICAL)) {
+	if (!isFormulaOk()) {
 		return;
 	}
 	if (m_minmax.m_min == min && m_minmax.m_max == max && m_steps == steps) {
@@ -114,7 +114,7 @@ void Graph::recountAnyway() {
 		return;
 	}
 	m_v.clear();
-	if (m_steps == 0 || !m_minmax.ok()) {
+	if (m_steps == 0 || !m_minmax.ok() || !isFormulaOk()) {
 		return;
 	}
 
@@ -371,4 +371,8 @@ void Graph::setUpdateButton1(bool show) {
 	m_show = show;
 	gtk_button_set_image(GTK_BUTTON(m_button[1]),
 			image(IMAGE_BUTTONS[m_show ? IBUTTON_ON : IBUTTON_OFF]));
+}
+
+bool Graph::isFormulaOk() {
+	return m_ok[0] && (m_ok[1] || m_type != GraphType::PARAMETRICAL);
 }

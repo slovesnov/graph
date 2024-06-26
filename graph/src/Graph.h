@@ -57,6 +57,7 @@ public:
 	void setStepsMinMax(std::string &steps, std::string &min, std::string &max);
 	void buttonClicked(GtkWidget *w);
 	void setUpdateButton1(bool show);
+	bool isFormulaOk();
 };
 
 #endif /* GRAPH_H_ */

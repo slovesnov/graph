@@ -116,7 +116,9 @@ public:
 	std::string filechooser(bool save);
 	void updateTriangleButton();
 	bool isGraphsVisible();
-	void setTitle();
+	void updateTitle();
+	void setPathUpdateTitle(std::string& s);
+	void setDefaultPathUpdateTitle();
 };
 
 #endif /* GRAPHWINDOW_H_ */

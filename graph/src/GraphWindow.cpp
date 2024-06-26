@@ -84,7 +84,6 @@ GraphWindow::GraphWindow() {
 	pWindow = this;
 	loadConfig();
 	m_setaxisOnDraw = true;
-	m_path = DEFAULT_NAME + std::string(".") + DEFAULT_EXTENSION;
 
 	loadCSS();
 	//load colors
@@ -197,6 +196,9 @@ GraphWindow::GraphWindow() {
 	g_signal_connect_swapped(G_OBJECT(m_window), "destroy",
 			G_CALLBACK(gtk_main_quit), G_OBJECT(m_window));
 
+	setDefaultPathUpdateTitle();
+
+
 	gtk_main();
 
 }
@@ -238,7 +240,6 @@ void GraphWindow::clickButton(IBUTTON n) {
 				})->first;
 		addGraph(GraphType::SIMPLE, i);
 		gtk_widget_show_all(m_vb);
-		//redraw();//calls automatically
 		updateEnableClose();
 		break;
 
@@ -247,9 +248,9 @@ void GraphWindow::clickButton(IBUTTON n) {
 		m_setaxisOnDraw = true;
 		addGraph(GraphType::SIMPLE, 0);
 		gtk_widget_show_all(m_vb);
-		//redraw();//calls automatically
 		updateEnableClose();
 		updateTriangleButton();
+		setDefaultPathUpdateTitle();
 		break;
 
 	case IBUTTON_LOAD:
@@ -518,8 +519,7 @@ void GraphWindow::createLanguageCombo() {
 }
 
 void GraphWindow::updateLanguage() {
-	setTitle();
-
+	updateTitle();
 	for (auto &a : m_g) {
 		a->updateLanguage();
 	}
@@ -598,8 +598,7 @@ void GraphWindow::save() {
 	if (s.empty()) {
 		return;
 	}
-	m_path = s;
-	setTitle();
+	setPathUpdateTitle(s);
 	std::ofstream f(s);
 	s = forma(ExpressionEstimator::version) + "\n";
 	int i = 0;
@@ -618,8 +617,7 @@ void GraphWindow::load() {
 	if (s.empty()) {
 		return;
 	}
-	m_path = s;
-	setTitle();
+	setPathUpdateTitle(s);
 	std::ifstream f(s);
 	std::stringstream buffer;
 	buffer << f.rdbuf();
@@ -726,10 +724,20 @@ bool GraphWindow::isGraphsVisible() {
 	return gtk_widget_get_visible(m_g[0]->m_box);
 }
 
-void GraphWindow::setTitle() {
+void GraphWindow::updateTitle() {
 	std::string s = getFileInfo(m_path, FILEINFO::NAME) + " - "
-			+ getLanguageString(PLOTTER) + std::string(" (")
+			+ getLanguageString(PLOTTER) + " ("
 			+ getLanguageString(VERSION) + " "
 			+ forma(ExpressionEstimator::version) + ")";
 	gtk_window_set_title(GTK_WINDOW(m_window), s.c_str());
+}
+
+void GraphWindow::setPathUpdateTitle(std::string& s){
+	m_path=s;
+	updateTitle();
+}
+
+void GraphWindow::setDefaultPathUpdateTitle(){
+	std::string s = DEFAULT_NAME + std::string(".") + DEFAULT_EXTENSION;
+	setPathUpdateTitle(s);
 }
