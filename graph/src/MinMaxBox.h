@@ -15,7 +15,7 @@
 const char CERROR[] = "cerror";
 const double MINY = -5;
 const double MAXY = -MINY;
-const char SEPARATOR = '\'';
+const char SEPARATOR = 8;
 
 class Graph;
 

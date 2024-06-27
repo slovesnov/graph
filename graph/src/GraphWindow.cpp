@@ -198,7 +198,6 @@ GraphWindow::GraphWindow() {
 
 	setDefaultPathUpdateTitle();
 
-
 	gtk_main();
 
 }
@@ -321,8 +320,8 @@ void GraphWindow::draw(cairo_t *cr, int w, int h) {
 	if (m_setaxisOnDraw) {
 		auto k = MAXY * gtk_widget_get_allocated_width(m_area)
 				/ gtk_widget_get_allocated_height(m_area);
-		m_xy[0].set(-k, k);	//scale 1:1 circle is circle
-		m_xy[1].set(MINY, MAXY);
+		m_xy[0].set(-k, k, true);	//scale 1:1 circle is circle
+		m_xy[1].set(MINY, MAXY, true);
 		m_setaxisOnDraw = false;
 		axisChanged();
 		return;
@@ -361,11 +360,8 @@ void GraphWindow::draw(cairo_t *cr, int w, int h) {
 //	cairo_arc(cr, w / 2., h / 2., w / 2., 0, 2 * M_PI);
 //	cairo_arc(cr, w / 2., h / 2., h / 2., 0, 2 * M_PI);
 
-//	int i=-1;
 	for (auto &b : m_g) {
 		auto &a = *b;
-//		i++;
-//		printl(i,a.m_show,a.m_points)
 		if (!a.m_show) {
 			continue;
 		}
@@ -600,14 +596,14 @@ void GraphWindow::save() {
 	}
 	setPathUpdateTitle(s);
 	std::ofstream f(s);
-	s = forma(ExpressionEstimator::version) + "\n";
+	s = forma(ExpressionEstimator::version);
 	int i = 0;
 	for (auto a : m_xy) {
-		s += format("minmax_%c=", "xy"[i]) + " " + a.toString() + "\n";
+		s += format("\nminmax_%c=", "xy"[i]) + " " + a.toString();
 		i++;
 	}
 	for (auto a : m_g) {
-		s += a->toString() + "\n";
+		s += "\n" + a->toString();
 	}
 	f << s;
 }
@@ -625,33 +621,62 @@ void GraphWindow::load() {
 	VString v = split(s, "\n"), t;
 	size_t i, j, k;
 	clearGraphs();
-	for (i = 1; i < v.size(); i++) {
-		t = split(v[i], SEPARATOR);
-		k = 0;
-		for (j = 1; j < t.size(); j += 2) {
-			t[k++] = t[j];
-		}
-		t.resize(k);
-		if (i > 0 && i < 3) {
-			m_xy[i - 1].set(t[0], t[1]);
-			m_xy[i - 1].inputChanged();
-		} else {
-			int p[2] = { 0, 0 };
-			for (j = 0; j < 2; j++) {
-				parseString(t[j], p[j]);
+	int error = 0;
+	if (v.size() < 3) {
+		error = __LINE__;
+	} else {
+		for (i = 1; i < v.size(); i++) {
+			t = split(v[i], SEPARATOR);
+			k = 0;
+			for (j = 1; j < t.size(); j += 2) {
+				t[k++] = t[j];
 			}
-			addGraph(GraphType(p[0]), p[1]);
-			Graph *e = m_g.back();
-			e->setFormula(t[j++], 0);
-			if (e->m_type != GraphType::SIMPLE) {
-				if (e->m_type == GraphType::PARAMETRICAL) {
-					e->setFormula(t[j++], 1);
+			t.resize(k);
+			if (i > 0 && i < 3) {
+				if (t.size() != 2) {
+					error = __LINE__;
+					break;
 				}
-				e->setStepsMinMax(t[j], t[j + 1], t[j + 2]);
-				j += 3;
+				m_xy[i - 1].set(t[0], t[1]);
+				m_xy[i - 1].inputChanged();
+			} else {
+				if (t.size() < 2) {
+					error = __LINE__;
+					break;
+				}
+				int p[] = { 0, 0 };
+				for (j = 0; j < 2; j++) {
+					if (!parseString(t[j], p[j])) {
+						error = __LINE__;
+						goto l667;
+					}
+				}
+				const size_t sz[] = { 4, 7, 8 };
+				if (p[0] < 0 || p[0] > 2 || t.size() != sz[p[0]]) {
+					error = __LINE__;
+					break;
+				}
+				addGraph(GraphType(p[0]), p[1]);
+				Graph *e = m_g.back();
+				e->setFormula(t[j++], 0);
+				if (e->m_type != GraphType::SIMPLE) {
+					if (e->m_type == GraphType::PARAMETRICAL) {
+						e->setFormula(t[j++], 1);
+					}
+					e->setStepsMinMax(t[j], t[j + 1], t[j + 2]);
+					j += 3;
+				}
+				e->setUpdateButton1(t[j] == "1");
+				e->recountAnyway();
 			}
-			e->setUpdateButton1(t[j] == "1");
-			e->recountAnyway();
+		}
+	}
+	l667: if (error) {
+		message(getLanguageString(ERROR),
+				getLanguageString(ERROR_FILE_IS_CORRUPTED)
+						+ std::string(" line : ") + std::to_string(error));
+		if (m_g.empty()) {
+			addGraph(GraphType::SIMPLE, 0);
 		}
 	}
 	gtk_widget_show_all(m_vb);
@@ -726,18 +751,34 @@ bool GraphWindow::isGraphsVisible() {
 
 void GraphWindow::updateTitle() {
 	std::string s = getFileInfo(m_path, FILEINFO::NAME) + " - "
-			+ getLanguageString(PLOTTER) + " ("
-			+ getLanguageString(VERSION) + " "
-			+ forma(ExpressionEstimator::version) + ")";
+			+ getLanguageString(PLOTTER) + " (" + getLanguageString(VERSION)
+			+ " " + forma(ExpressionEstimator::version) + ")";
 	gtk_window_set_title(GTK_WINDOW(m_window), s.c_str());
 }
 
-void GraphWindow::setPathUpdateTitle(std::string& s){
-	m_path=s;
+void GraphWindow::setPathUpdateTitle(std::string &s) {
+	m_path = s;
 	updateTitle();
 }
 
-void GraphWindow::setDefaultPathUpdateTitle(){
+void GraphWindow::setDefaultPathUpdateTitle() {
 	std::string s = DEFAULT_NAME + std::string(".") + DEFAULT_EXTENSION;
 	setPathUpdateTitle(s);
+}
+
+void GraphWindow::message(std::string title, std::string message) {
+	GtkWindow *parent = GTK_WINDOW(m_window);
+	GtkWidget *dialog, *label, *content_area;
+	GtkDialogFlags flags;
+	flags = GTK_DIALOG_DESTROY_WITH_PARENT;
+	dialog = gtk_dialog_new_with_buttons(title.c_str(), parent, flags, "_OK",
+			GTK_RESPONSE_NONE,
+			NULL);
+	content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+	label = gtk_label_new(message.c_str());
+
+	g_signal_connect_swapped(dialog, "response",
+			G_CALLBACK (gtk_widget_destroy), dialog);
+	gtk_container_add(GTK_CONTAINER(content_area), label);
+	gtk_widget_show_all(dialog);
 }

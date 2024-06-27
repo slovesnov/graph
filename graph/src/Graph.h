@@ -54,6 +54,8 @@ public:
 	bool setSteps();
 	bool inEntry(GtkWidget *w);
 	std::string toString();
+	static std::string toSaveString(const gchar *p);
+	static std::string toSaveString(int i);
 	void setStepsMinMax(std::string &steps, std::string &min, std::string &max);
 	void buttonClicked(GtkWidget *w);
 	void setUpdateButton1(bool show);

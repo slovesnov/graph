@@ -141,7 +141,6 @@ void MinMaxBox::inputChanged(bool redraw/*=true*/) {
 	}
 
 	if (!redraw) {
-		//TODO
 		if (ok()) {
 			set(v[0], v[1]);
 		}
@@ -194,8 +193,7 @@ std::string MinMaxBox::toString() {
 		if (i) {
 			s += ' ';
 		}
-		s += format("%c%s%c", SEPARATOR, gtk_entry_get_text(GTK_ENTRY(a)),
-				SEPARATOR);
+		s += Graph::toSaveString(gtk_entry_get_text(GTK_ENTRY(a)));
 		i++;
 	}
 	return s;

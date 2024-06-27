@@ -38,9 +38,10 @@ static_assert(SIZEI(IMAGE_BUTTONS)==IBUTTON_SIZE);
 
 static const char *languageString[][64] = { { "plotter", "type", "standard",
 		"polar (a is angle)", "parametrical", "steps", "version", "cancel",
-		"open", "save", "graph files" }, { "построитель графиков", "тип",
-		"стандартный", "пол€рный (a - угол)", "параметрический", "шагов",
-		"верси€", "отмена", "открыть", "сохранить", "файлы графиков" } };
+		"open", "save", "graph files", "error", "error file is corrupted" }, {
+		"построитель графиков", "тип", "стандартный", "пол€рный (a - угол)",
+		"параметрический", "шагов", "верси€", "отмена", "открыть", "сохранить",
+		"файлы графиков", "ошибка", "ошибка файл повреждЄн" } };
 
 enum STRING_ENUM {
 	PLOTTER,
@@ -53,7 +54,9 @@ enum STRING_ENUM {
 	CANCEL,
 	OPEN,
 	SAVE,
-	GRAPH_FILES
+	GRAPH_FILES,
+	ERROR,
+	ERROR_FILE_IS_CORRUPTED
 };
 
 const char DEFAULT_NAME[] = "untitled";
@@ -117,8 +120,9 @@ public:
 	void updateTriangleButton();
 	bool isGraphsVisible();
 	void updateTitle();
-	void setPathUpdateTitle(std::string& s);
+	void setPathUpdateTitle(std::string &s);
 	void setDefaultPathUpdateTitle();
+	void message(std::string title, std::string message);
 };
 
 #endif /* GRAPHWINDOW_H_ */
