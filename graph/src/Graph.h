@@ -60,6 +60,7 @@ public:
 	void buttonClicked(GtkWidget *w);
 	void setUpdateButton1(bool show);
 	bool isFormulaOk();
+	static std::vector<Point> stringToVectorPoints(std::string s);
 };
 
 #endif /* GRAPH_H_ */

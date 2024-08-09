@@ -240,7 +240,6 @@ void Graph::inputChanged(GtkWidget *w) {
 		return;
 	}
 
-	size_t j;
 	int i = 0;
 	const char *s = gtk_entry_get_text(GTK_ENTRY(w));
 	for (auto a : m_entry) {
@@ -253,21 +252,10 @@ void Graph::inputChanged(GtkWidget *w) {
 			} else {
 				m_v.clear();
 				if (m_type == GraphType::SIMPLE && i == 0) {
-					VString v = splitr(trim(s), "\\s+");
-					std::vector<Point> vp;
-					Point p;
-					if (v.size() % 2 == 0) {
-						for (j = 0; j < v.size(); j += 2) {
-							if (!parseString(v[j], p.x)
-									|| !parseString(v[j + 1], p.y)) {
-								break;
-							}
-							vp.push_back(p);
-						}
-						if (j == v.size()) {
-							m_v = vp;
-							removeClass(m_entry[0], CERROR);
-						}
+					std::vector<Point> vp=stringToVectorPoints(s);
+					if(!vp.empty()){
+						m_v = vp;
+						removeClass(m_entry[0], CERROR);
 					}
 				}
 				m_points = !m_v.empty();
@@ -290,13 +278,17 @@ void Graph::setFormula(std::string s, int i) {
 //	printl(s,i,int(m_type))
 	try {
 		m_formula[i] = s;
-		m_estimator[i].compile(m_formula[i], a[int(m_type)]);
 		m_ok[i] = true;
+		auto v=stringToVectorPoints(s);
+		if(v.empty()){
+			m_estimator[i].compile(m_formula[i], a[int(m_type)]);
+		}
 	} catch (std::exception &e) {
 		m_v.clear();
 		m_ok[i] = false;
 	}
 	gtk_entry_set_text(GTK_ENTRY(m_entry[i]), m_formula[i].c_str());
+	//printl(i,m_ok[i],s)
 	addRemoveClass(m_entry[i], CERROR, !m_ok[i]);
 }
 
@@ -383,4 +375,24 @@ void Graph::setUpdateButton1(bool show) {
 
 bool Graph::isFormulaOk() {
 	return m_ok[0] && (m_ok[1] || m_type != GraphType::PARAMETRICAL);
+}
+
+std::vector<Point> Graph::stringToVectorPoints(std::string s){
+	VString v = splitr(trim(s), "\\s+");
+	std::vector<Point> vp,ve;
+	Point p;
+	size_t j;
+	if (v.size() % 2 == 0 && !v.empty() ) {
+		for (j = 0; j < v.size(); j += 2) {
+			if (!parseString(v[j], p.x)
+					|| !parseString(v[j + 1], p.y)) {
+				return ve;
+			}
+			vp.push_back(p);
+		}
+		if (j == v.size()) {
+			return vp;
+		}
+	}
+	return ve;
 }
