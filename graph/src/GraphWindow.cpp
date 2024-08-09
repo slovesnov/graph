@@ -12,6 +12,7 @@
 
 #include "GraphWindow.h"
 #include "aslov.h"
+#include <regex>
 
 GraphWindow *pWindow;
 
@@ -24,6 +25,25 @@ enum {
 };
 
 const std::string LNG[] = { "en", "ru" };
+
+std::string removeEndingZeros(std::string s) {
+	/*
+	std::string a[]={"1.2300","45.00","800","340."};
+1.2300 1.23
+45.00 45
+800 800
+340. 340
+	*/
+	std::regex re("(\\.[1-9]*)(0+)$");
+	std::string r;
+	r = std::regex_replace(s, re, "$1");
+	size_t i = r.length() - 1;
+	if (!r.empty() && r[i] == '.') {
+		r = r.substr(0, i);
+	}
+	return r;
+
+}
 
 static void button_clicked(GtkWidget *widget, gpointer) {
 	pWindow->clickButton(widget);
@@ -315,7 +335,9 @@ double GraphWindow::adjustAxis(double v) {
 }
 
 void GraphWindow::draw(cairo_t *cr, int w, int h) {
+	int i;
 	double x, y;
+	std::string s;
 
 	if (m_setaxisOnDraw) {
 		auto k = MAXY * gtk_widget_get_allocated_width(m_area)
@@ -334,7 +356,8 @@ void GraphWindow::draw(cairo_t *cr, int w, int h) {
 		return;
 	}
 
-	Point p = toScreen(0, 0);
+	//also uses below
+	const Point p = toScreen(0, 0);
 	x = adjustAxis(p.x);
 	y = adjustAxis(p.y);
 
@@ -346,8 +369,47 @@ void GraphWindow::draw(cairo_t *cr, int w, int h) {
 
 	cairo_move_to(cr, x, 0);
 	cairo_line_to(cr, x, h);
-
 	cairo_stroke(cr);
+
+	const bool grid = 1;
+	if (grid) {
+		cairo_set_line_width(cr, 1);
+		const double dashed[] = { 1, 15 };
+		cairo_set_dash(cr, dashed, SIZEI(dashed), 0);
+		const int fontSize = 13;
+		cairo_set_font_size(cr, fontSize);
+		Point delta( { 150, 150 });
+		const int digits = 1;
+		const bool xvisible = p.x >= 0 && p.x < w;
+		const bool yvisible = p.y >= 0 && p.y < h;
+
+		/* n integer number
+		 0 <= w/2+n*dx <= w
+		 -w/2 <= n*dx <= w/2
+		 -w/2/dx <= n <= w/2/dx
+		 */
+		for (i = -w / 2 / delta.x; i <= w / 2 / delta.x; i++) {
+			x = w / 2 + i * delta.x;
+			s = removeEndingZeros(format("%.*lf", digits, fromScreenX(x)));
+			cairo_move_to(cr, x, yvisible ? p.y : fontSize);
+			cairo_show_text(cr, s.c_str());
+
+			x = adjustAxis(x);
+			cairo_move_to(cr, x, 0);
+			cairo_line_to(cr, x, h);
+		}
+		for (i = -h / 2 / delta.y; i <= h / 2 / delta.y; i++) {
+			y = h / 2 + i * delta.y;
+			s = removeEndingZeros(format("%.*lf", digits, fromScreenY(y)));
+			cairo_move_to(cr, xvisible ? p.x : 0, y);
+			cairo_show_text(cr, s.c_str());
+
+			y = adjustAxis(y);
+			cairo_move_to(cr, 0, y);
+			cairo_line_to(cr, w, y);
+		}
+		cairo_stroke(cr);
+	}
 
 	cairo_set_line_width(cr, 1.5);
 
