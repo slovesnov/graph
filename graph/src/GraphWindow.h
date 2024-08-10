@@ -92,13 +92,12 @@ public:
 	void mouseLeave(GdkEventCrossing *event);
 	gboolean keyPress(GdkEventKey *event);
 
-	double fromScreenX(int v);
-	double fromScreenY(int v);
-	int toScreenX(double v);
-	int toScreenY(double v);
-	Point toScreen(double x, double y) {
-		return {double(toScreenX(x)),double(toScreenY(y))};
-	}
+	//all screen functions arguments should be double NOT int
+	double fromScreenX(double v);
+	double fromScreenY(double v);
+	double toScreenX(double v);
+	double toScreenY(double v);
+	Point toScreen(double x, double y);
 	void axisChanged(bool update = true);
 	void createLanguageCombo();
 

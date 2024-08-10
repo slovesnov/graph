@@ -90,7 +90,7 @@ double MinMaxBox::toScreen(double v) {
 	return (m_invert ? m_max - v : v - m_min) / (m_max - m_min) * m_size;
 }
 
-double MinMaxBox::fromScreen(int v) {
+double MinMaxBox::fromScreen(double v) {
 	auto a = v * (m_max - m_min) / m_size;
 	return (m_invert ? m_max - a : a + m_min);
 }

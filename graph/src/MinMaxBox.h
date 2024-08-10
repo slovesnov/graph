@@ -34,7 +34,7 @@ public:
 	void set(std::string const &s1, std::string const &s2);
 	void setSize(int size);
 	double toScreen(double v);
-	double fromScreen(int v);
+	double fromScreen(double v);
 	void scale(double k);
 	void updateEntries();
 	void inputChanged(bool redraw = true);

@@ -28,12 +28,12 @@ const std::string LNG[] = { "en", "ru" };
 
 std::string removeEndingZeros(std::string s) {
 	/*
-	std::string a[]={"1.2300","45.00","800","340."};
-1.2300 1.23
-45.00 45
-800 800
-340. 340
-	*/
+	 std::string a[]={"1.2300","45.00","800","340."};
+	 1.2300 1.23
+	 45.00 45
+	 800 800
+	 340. 340
+	 */
 	std::regex re("(\\.[1-9]*)(0+)$");
 	std::string r;
 	r = std::regex_replace(s, re, "$1");
@@ -335,8 +335,8 @@ double GraphWindow::adjustAxis(double v) {
 }
 
 void GraphWindow::draw(cairo_t *cr, int w, int h) {
-	int i;
-	double x, y;
+	int i, j;
+	double x, y, v;
 	std::string s;
 
 	if (m_setaxisOnDraw) {
@@ -374,39 +374,43 @@ void GraphWindow::draw(cairo_t *cr, int w, int h) {
 	const bool grid = 1;
 	if (grid) {
 		cairo_set_line_width(cr, 1);
-		const double dashed[] = { 1, 15 };
+		const double dashed[] = { 1, 7 };
 		cairo_set_dash(cr, dashed, SIZEI(dashed), 0);
 		const int fontSize = 13;
 		cairo_set_font_size(cr, fontSize);
-		Point delta( { 150, 150 });
+		const int delta = 150;
 		const int digits = 1;
-		const bool xvisible = p.x >= 0 && p.x < w;
-		const bool yvisible = p.y >= 0 && p.y < h;
+		const bool xvisible = p.y >= 0 && p.y < h;
+		const bool yvisible = p.x >= 0 && p.x < w;
+		const bool bothVisible=xvisible && yvisible;
 
-		/* n integer number
-		 0 <= w/2+n*dx <= w
-		 -w/2 <= n*dx <= w/2
-		 -w/2/dx <= n <= w/2/dx
-		 */
-		for (i = -w / 2 / delta.x; i <= w / 2 / delta.x; i++) {
-			x = w / 2 + i * delta.x;
-			s = removeEndingZeros(format("%.*lf", digits, fromScreenX(x)));
-			cairo_move_to(cr, x, yvisible ? p.y : fontSize);
-			cairo_show_text(cr, s.c_str());
+		//v = fmod(v,delta)+trunc(v,delta)*delta
+		v = yvisible ? p.x : w / 2;
+		j = trunc(v / delta);
+		for (x = fmod(v, delta), i = 0; x < w; x += delta, i++) {
+			if (i != j || !bothVisible ) {
+				s = removeEndingZeros(format("%.*lf", digits, fromScreenX(x)));
+				cairo_move_to(cr, x, xvisible ? p.y : fontSize);
+				cairo_show_text(cr, s.c_str());
+			}
 
-			x = adjustAxis(x);
-			cairo_move_to(cr, x, 0);
-			cairo_line_to(cr, x, h);
+			v = adjustAxis(x);
+			cairo_move_to(cr, v, 0);
+			cairo_line_to(cr, v, h);
 		}
-		for (i = -h / 2 / delta.y; i <= h / 2 / delta.y; i++) {
-			y = h / 2 + i * delta.y;
-			s = removeEndingZeros(format("%.*lf", digits, fromScreenY(y)));
-			cairo_move_to(cr, xvisible ? p.x : 0, y);
-			cairo_show_text(cr, s.c_str());
 
-			y = adjustAxis(y);
-			cairo_move_to(cr, 0, y);
-			cairo_line_to(cr, w, y);
+		v = xvisible ? p.y : h / 2;
+		j = trunc(v / delta);
+		for (y = fmod(v, delta), i = 0; y < h; y += delta, i++) {
+			if (i != j || !bothVisible) {
+				s = removeEndingZeros(format("%.*lf", digits, fromScreenY(y)));
+				cairo_move_to(cr, yvisible ? p.x : 0, y);
+				cairo_show_text(cr, s.c_str());
+			}
+
+			v = adjustAxis(y);
+			cairo_move_to(cr, 0, v);
+			cairo_line_to(cr, w, v);
 		}
 		cairo_stroke(cr);
 	}
@@ -516,20 +520,24 @@ void GraphWindow::mouseLeave(GdkEventCrossing *event) {
 	gtk_label_set_text(GTK_LABEL(m_coordinates), "");
 }
 
-double GraphWindow::fromScreenX(int v) {
+double GraphWindow::fromScreenX(double v) {
 	return m_xy[0].fromScreen(v);
 }
 
-double GraphWindow::fromScreenY(int v) {
+double GraphWindow::fromScreenY(double v) {
 	return m_xy[1].fromScreen(v);
 }
 
-int GraphWindow::toScreenX(double v) {
+double GraphWindow::toScreenX(double v) {
 	return m_xy[0].toScreen(v);
 }
 
-int GraphWindow::toScreenY(double v) {
+double GraphWindow::toScreenY(double v) {
 	return m_xy[1].toScreen(v);
+}
+
+Point GraphWindow::toScreen(double x, double y) {
+	return {toScreenX(x),toScreenY(y)};
 }
 
 void GraphWindow::axisChanged(bool update/*=true*/) {
