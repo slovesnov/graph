@@ -422,7 +422,7 @@ void GraphWindow::draw(cairo_t *cr, int w, int h) {
 	const int imax = 20;
 	double x1, y1, step;
 	step = .1;
-	//floor.. for round excat values -.4 -.3 -.2 ...
+	//floor.. for round exact values -.4 -.3 -.2 ...
 	for (y1 = floor(10 * fromScreenY(0)) / 10, i = 0; i < imax && (y =
 			toScreenY(y1)) < h; y1 -= step, i++) {
 		s = removeEndingZeros(format("%.*lf", digits, y1));
