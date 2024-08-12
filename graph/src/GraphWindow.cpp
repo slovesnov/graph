@@ -335,8 +335,7 @@ double GraphWindow::adjustAxis(double v) {
 }
 
 void GraphWindow::draw(cairo_t *cr, int w, int h) {
-	int i, j;
-	double x, y, v;
+	double x, y;
 	std::string s;
 
 	if (m_setaxisOnDraw) {
@@ -371,50 +370,85 @@ void GraphWindow::draw(cairo_t *cr, int w, int h) {
 	cairo_line_to(cr, x, h);
 	cairo_stroke(cr);
 
-	const bool grid = 1;
-	if (grid) {
-		cairo_set_line_width(cr, 1);
-		const double dashed[] = { 1, 7 };
-		cairo_set_dash(cr, dashed, SIZEI(dashed), 0);
-		const int fontSize = 13;
-		cairo_set_font_size(cr, fontSize);
-		const int delta = 150;
-		const int digits = 1;
-		const bool xvisible = p.y >= 0 && p.y < h;
-		const bool yvisible = p.x >= 0 && p.x < w;
-		const bool bothVisible=xvisible && yvisible;
+	//0 - no grid, 1 - ordinary, 2 - custom for mass.gr file
+#define GRID 2
 
-		//v = fmod(v,delta)+trunc(v,delta)*delta
-		v = yvisible ? p.x : w / 2;
-		j = trunc(v / delta);
-		for (x = fmod(v, delta), i = 0; x < w; x += delta, i++) {
-			if (i != j || !bothVisible ) {
-				s = removeEndingZeros(format("%.*lf", digits, fromScreenX(x)));
-				cairo_move_to(cr, x, xvisible ? p.y : fontSize);
-				cairo_show_text(cr, s.c_str());
-			}
+#if GRID
+	int i;
+	double v;
 
-			v = adjustAxis(x);
-			cairo_move_to(cr, v, 0);
-			cairo_line_to(cr, v, h);
+	cairo_set_line_width(cr, 1);
+	const double dashed[] = { 1, 7 };
+	cairo_set_dash(cr, dashed, SIZEI(dashed), 0);
+	const int fontSize = 13;
+	cairo_set_font_size(cr, fontSize);
+	const int digits = 1;
+	const bool xvisible = p.y >= 0 && p.y < h;
+	const bool yvisible = p.x >= 0 && p.x < w;
+#if GRID==1
+	const int delta = 150;
+	const bool bothVisible = xvisible && yvisible;
+	int j;
+	//v = fmod(v,delta)+trunc(v,delta)*delta
+	v = yvisible ? p.x : w / 2;
+	j = trunc(v / delta);
+	for (x = fmod(v, delta), i = 0; x < w; x += delta, i++) {
+		if (i != j || !bothVisible) {
+			s = removeEndingZeros(format("%.*lf", digits, fromScreenX(x)));
+			cairo_move_to(cr, x, xvisible ? p.y : fontSize);
+			cairo_show_text(cr, s.c_str());
 		}
 
-		v = xvisible ? p.y : h / 2;
-		j = trunc(v / delta);
-		for (y = fmod(v, delta), i = 0; y < h; y += delta, i++) {
-			if (i != j || !bothVisible) {
-				s = removeEndingZeros(format("%.*lf", digits, fromScreenY(y)));
-				cairo_move_to(cr, yvisible ? p.x : 0, y);
-				cairo_show_text(cr, s.c_str());
-			}
-
-			v = adjustAxis(y);
-			cairo_move_to(cr, 0, v);
-			cairo_line_to(cr, w, v);
-		}
-		cairo_stroke(cr);
+		v = adjustAxis(x);
+		cairo_move_to(cr, v, 0);
+		cairo_line_to(cr, v, h);
 	}
 
+	v = xvisible ? p.y : h / 2;
+	j = trunc(v / delta);
+	for (y = fmod(v, delta), i = 0; y < h; y += delta, i++) {
+		if (i != j || !bothVisible) {
+			s = removeEndingZeros(format("%.*lf", digits, fromScreenY(y)));
+			cairo_move_to(cr, yvisible ? p.x : 0, y);
+			cairo_show_text(cr, s.c_str());
+		}
+
+		v = adjustAxis(y);
+		cairo_move_to(cr, 0, v);
+		cairo_line_to(cr, w, v);
+	}
+#else
+	//my custom grid
+	const int imax = 20;
+	double x1, y1, step;
+	step = .1;
+	//floor.. for round excat values -.4 -.3 -.2 ...
+	for (y1 = floor(10 * fromScreenY(0)) / 10, i = 0; i < imax && (y =
+			toScreenY(y1)) < h; y1 -= step, i++) {
+		s = removeEndingZeros(format("%.*lf", digits, y1));
+		cairo_move_to(cr, yvisible ? p.x : 0, y);
+		cairo_show_text(cr, s.c_str());
+
+		v = adjustAxis(y);
+		cairo_move_to(cr, 0, v);
+		cairo_line_to(cr, w, v);
+	}
+
+	//ceil for round x%100=0 800 900 1000...
+	step = 100;
+	for (x1 = ceil(fromScreenX(0) / 100) * 100, i = 0; i < imax && (x =
+			toScreenX(x1)) < w; x1 += step, i++) {
+		s = removeEndingZeros(format("%.*lf", digits, x1));
+		cairo_move_to(cr, x, xvisible ? p.y : fontSize);
+		cairo_show_text(cr, s.c_str());
+
+		v = adjustAxis(x);
+		cairo_move_to(cr, v, 0);
+		cairo_line_to(cr, v, h);
+	}
+#endif
+	cairo_stroke(cr);
+#endif
 	cairo_set_line_width(cr, 1.5);
 
 //	cairo_matrix_t save_matrix;
@@ -485,7 +519,7 @@ void GraphWindow::mouseButtonUp(GdkEventButton *event) {
 	double v1, v2;
 
 	if (m_dragx != NO_DRAG) {
-		//click and release same point skip
+//click and release same point skip
 		if (event->x == m_dragx || event->y == m_dragy) {
 			m_dragx = NO_DRAG;
 			return;
