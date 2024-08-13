@@ -419,12 +419,14 @@ void GraphWindow::draw(cairo_t *cr, int w, int h) {
 	}
 #else
 	//my custom grid
-	const int imax = 20;
+	const int maxSteps = 100;
 	double x1, y1, step;
 	step = .1;
 	//floor.. for round exact values -.4 -.3 -.2 ...
-	for (y1 = floor(10 * fromScreenY(0)) / 10, i = 0; i < imax && (y =
-			toScreenY(y1)) < h; y1 -= step, i++) {
+//	for (y1 = floor(fromScreenY(0)/step) *step, i = 0; i < maxSteps && (y =
+//			toScreenY(y1)) < h; y1 -= step, i++) {
+		for (y1 = ceil(fromScreenY(h)/step) *step, i = 0; i < maxSteps && (y =
+				toScreenY(y1)) >0; y1 += step, i++) {
 		s = removeEndingZeros(format("%.*lf", digits, y1));
 		cairo_move_to(cr, yvisible ? p.x : 0, y);
 		cairo_show_text(cr, s.c_str());
@@ -436,7 +438,7 @@ void GraphWindow::draw(cairo_t *cr, int w, int h) {
 
 	//ceil for round x%100=0 800 900 1000...
 	step = 100;
-	for (x1 = ceil(fromScreenX(0) / 100) * 100, i = 0; i < imax && (x =
+	for (x1 = ceil(fromScreenX(0) / step) * step, i = 0; i < maxSteps && (x =
 			toScreenX(x1)) < w; x1 += step, i++) {
 		s = removeEndingZeros(format("%.*lf", digits, x1));
 		cairo_move_to(cr, x, xvisible ? p.y : fontSize);
