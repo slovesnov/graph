@@ -421,12 +421,9 @@ void GraphWindow::draw(cairo_t *cr, int w, int h) {
 	//my custom grid
 	const int maxSteps = 100;
 	double x1, y1, step;
-	step = .1;
-	//floor.. for round exact values -.4 -.3 -.2 ...
-//	for (y1 = floor(fromScreenY(0)/step) *step, i = 0; i < maxSteps && (y =
-//			toScreenY(y1)) < h; y1 -= step, i++) {
-		for (y1 = ceil(fromScreenY(h)/step) *step, i = 0; i < maxSteps && (y =
-				toScreenY(y1)) >0; y1 += step, i++) {
+	step=fromScreenY(0)-fromScreenY(h)>1000 ? 100:.1;
+	for (y1 = ceil(fromScreenY(h) / step) * step, i = 0; i < maxSteps && (y =
+			toScreenY(y1)) > 0; y1 += step, i++) {
 		s = removeEndingZeros(format("%.*lf", digits, y1));
 		cairo_move_to(cr, yvisible ? p.x : 0, y);
 		cairo_show_text(cr, s.c_str());
