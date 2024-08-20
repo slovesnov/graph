@@ -30,3 +30,5 @@ on/off https://www.iconsdb.com/green-icons/circle-icon.html
 
 triangleup,triangledown https://en.m.wikipedia.org/wiki/File:Green_triangle.svg
 
+grid https://www.flaticon.com/free-icon/grid_3603069
+
