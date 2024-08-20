@@ -193,7 +193,7 @@ std::string MinMaxBox::toString() {
 		if (i) {
 			s += ' ';
 		}
-		s += Graph::toSaveString(gtk_entry_get_text(GTK_ENTRY(a)));
+		s += GraphWindow::toSaveString(gtk_entry_get_text(GTK_ENTRY(a)));
 		i++;
 	}
 	return s;

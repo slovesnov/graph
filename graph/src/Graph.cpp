@@ -327,27 +327,19 @@ bool Graph::inEntry(GtkWidget *w) {
 }
 
 std::string Graph::toString() {
-	std::string s = "type=" + toSaveString(int(m_type)) + " color="
-			+ toSaveString(m_colorIndex);
+	std::string s = "type=" + GraphWindow::toSaveString(int(m_type)) + " color="
+			+ GraphWindow::toSaveString(m_colorIndex);
 	int i, j;
 	for (j = 0; j <= int(m_type); j++) {
 		i = m_type == GraphType::POLAR && j == 1 ? 2 : j;
 		s += " " + std::string(i == 2 ? "steps" : "formula") + "="
-				+ toSaveString(gtk_entry_get_text(GTK_ENTRY(m_entry[i])));
+				+ GraphWindow::toSaveString(gtk_entry_get_text(GTK_ENTRY(m_entry[i])));
 	}
 	if (m_type != GraphType::SIMPLE) {
 		s += " minmax=" + m_minmax.toString();
 	}
-	s += " show=" + toSaveString(int(m_show));
+	s += " show=" + GraphWindow::toSaveString(int(m_show));
 	return s;
-}
-
-std::string Graph::toSaveString(const gchar *p) {
-	return SEPARATOR + std::string(p) + SEPARATOR;
-}
-
-std::string Graph::toSaveString(int i) {
-	return SEPARATOR + std::to_string(i) + SEPARATOR;
 }
 
 void Graph::setStepsMinMax(std::string &steps, std::string &min,
