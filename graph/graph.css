@@ -29,3 +29,28 @@ label,entry,frame label{
 .c5{
 	color:orange;
 }
+
+/*from bridge*/
+.sbutton label{
+	color:white;
+}
+
+.sbutton{
+	font-size: 16px;
+	border-radius: .5em;
+	border: solid 1px #0076a3;
+	background: -gtk-gradient(linear, left top, left bottom, from(#00adee), to(#0078a5));	
+}
+
+.sbutton:hover{
+	background: -gtk-gradient(linear, left top, left bottom, from(#0078a5), to(#00adee));
+}
+
+.sbutton:hover:active{
+	background: -gtk-gradient(linear, left top, left bottom, from(#0095cc), to(#00678e));
+}
+
+.sbutton:disabled{
+	border: solid 1px #222222;
+	background: -gtk-gradient(linear, left top, left bottom, from(#222222), to(#dddddd));
+}

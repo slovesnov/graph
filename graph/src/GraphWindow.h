@@ -11,9 +11,9 @@
 #ifndef GRAPHWINDOW_H_
 #define GRAPHWINDOW_H_
 
-#include "aslov.h"
 #include "MinMaxBox.h"
 #include "Graph.h"
+#include "Grid.h"
 
 enum IBUTTON {
 	IBUTTON_PLUS,
@@ -38,15 +38,29 @@ static std::string IMAGE_BUTTONS[] = { "plus.png", "new.png", "folder.png",
 static_assert(SIZEI(IMAGE_BUTTONS)==IBUTTON_SIZE);
 
 static const char *languageString[][64] = { { "plotter", "type", "standard",
-		"polar (a is angle)", "parametrical", "steps", "version", "cancel",
+		"polar (a is angle)", "parametrical", "steps", "version", "ok","reset","cancel",
 		"open", "save", "graph files", "error", "error file is corrupted",
 		"grid", "x-axis", "y-axis", "show lines", "step",
-		"maximum number of steps", "pixels", "precision" }, {
+		"maximum number of steps", "pixels", "precision"
+,"invalid number of parameters"
+,"invalid check should be 0 or 1"
+,"cann't parse double or parse negative value"
+,"cann't parse integer or parse negative value"
+,"maximum steps should be greater than zero"
+,"cann't parse integer or value less than"
+}, {
 		"построитель графиков", "тип", "стандартный", "полярный (a - угол)",
-		"параметрический", "шагов", "версия", "отмена", "открыть", "сохранить",
+		"параметрический", "шагов", "версия","ок","сброс", "отмена", "открыть", "сохранить",
 		"файлы графиков", "ошибка", "ошибка файл повреждён", "сетка", "ось x",
 		"ось y", "показать линии", "шаг", "максимальное число шагов",
-		"пикселей", "цифр после запятой" } };
+		"пикселей", "цифр после запятой"
+,"неверное число параметров"
+,"неверный чек должно быть 0 или 1"
+,"невозможно распознать число с плавающей точкой или распознано негативное число"
+,"невозможно распознать целое число или распознано негативное число"
+,"максимальное число шагов должно быть больше нуля"
+,"невозможно распознать целое число или значение меньше чем"
+} };
 
 enum STRING_ENUM {
 	PLOTTER,
@@ -56,6 +70,8 @@ enum STRING_ENUM {
 	PARAMETRICAL,
 	STEPS,
 	VERSION,
+	OK,
+	RESET,
 	CANCEL,
 	OPEN,
 	SAVE,
@@ -69,25 +85,17 @@ enum STRING_ENUM {
 	STEP,
 	MAXIMUM_NUMBER_OF_STEPS,
 	PIXELS,
-	PRECISION
+	PRECISION,
+	INVALID_NUMBER_OF_PARAMETERS,
+	INVALID_CHECK_SHOULD_BE_0_OR_1,
+	CANNT_PARSE_DOUBLE_OR_PARSE_NEGATIVE_VALUE,
+	CANNT_PARSE_INTEGER_OR_PARSE_NEGATIVE_VALUE,
+	MAXIMUM_STEPS_SHOULD_BE_GREATER_THAN_ZERO,
+	CANNT_PARSE_INTEGER_OR_PARSE_VALUE,
 };
 
 const char DEFAULT_NAME[] = "untitled";
 const char DEFAULT_EXTENSION[] = "gr";
-
-const size_t GRID_CHECK_INDEX[] = { 0, 2, 4, 6 };
-const int GRID_CHECK_SHOW_X = 0;
-const int GRID_CHECK_PIXELS_X = 1;
-const int GRID_CHECK_SHOW_Y = 2;
-const int GRID_CHECK_PIXELS_Y = 3;
-const int GRID_CHECK_SIZE = SIZEI(GRID_CHECK_INDEX);
-
-const int GRID_ENTRY_STEP_X = 0;
-const int GRID_ENTRY_DIGITS_X = 1;
-const int GRID_ENTRY_STEP_Y = 2;
-const int GRID_ENTRY_DIGITS_Y = 3;
-const int GRID_ENTRY_MAXSTEPS = 4;
-const int GRID_ENTRY_SIZE = 5;
 
 class GraphWindow {
 public:
@@ -99,10 +107,8 @@ public:
 	 * m_grid_check_w = show_x pixels_x show_y pixels_y
 	 * m_grid_entry = step_x digits_x step_y digits_y maxsteps
 	 */
-	GtkWidget *m_area, *m_coordinates, *m_grid_check_w[GRID_CHECK_SIZE],
-			*m_grid_entry[GRID_ENTRY_SIZE];
-	bool m_grid_check[GRID_CHECK_SIZE];
-	double m_grid_value[GRID_ENTRY_SIZE];
+	GtkWidget *m_area, *m_coordinates, *m_gridCheck[GRID_CHECK_SIZE],
+			*m_gridEntry[GRID_ENTRY_SIZE],*m_modal,*m_modalButton[3],*m_modalLabel;
 	static double adjustAxis(double v);
 	std::vector<Graph*> m_g;
 	int m_dragx, m_dragy, m_dragxe, m_dragye;
@@ -110,6 +116,7 @@ public:
 	std::vector<GdkRGBA> m_vcolor;
 	bool m_setaxisOnDraw;
 	std::string m_path;
+	Grid m_grid,m_gridStart;
 
 	GraphWindow();
 	virtual ~GraphWindow();
@@ -156,18 +163,15 @@ public:
 	void updateTitle();
 	void setPathUpdateTitle(std::string &s);
 	void setDefaultPathUpdateTitle();
-	void message(std::string title, std::string text);
-	void message(std::string title, GtkWidget *w);
 	void showGridDialog();
 	void inputChanged(GtkWidget *w);
 	void checkChanged(GtkWidget *w);
-	void loadGridParameters();
-	void storeGridParameters();
-	void setDefaultGrid();
 	static std::string toSaveString(const gchar *p);
 	static std::string toSaveString(int i);
 	static std::string toSaveString(double i);
-
+	gint showModalDialog(std::string title, std::string text);
+	gint showModalDialog(std::string title, GtkWidget *w,bool simple=true);
+	void gridDialogButtonClicked(STRING_ENUM e);
 };
 
 #endif /* GRAPHWINDOW_H_ */
