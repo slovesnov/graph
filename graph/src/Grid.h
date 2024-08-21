@@ -31,15 +31,16 @@ class Grid {
 public:
 	bool check[GRID_CHECK_SIZE];
 	double value[GRID_ENTRY_SIZE];
-	std::string checkError[GRID_CHECK_SIZE],valueError[GRID_ENTRY_SIZE],commonError;
+	std::string checkError[GRID_CHECK_SIZE], valueError[GRID_ENTRY_SIZE],
+			commonError;
 	std::string set(VString const &t);
 	bool ok();
 	void reset();
-	std::string setValue(std::string s,int n);
+	std::string setValue(std::string s, int n);
 	std::string toString();
 	void toDialog();
 	void fromDialog();
-	void operator=(Grid const& g);
+	void operator=(Grid const &g);
 };
 
 #endif /* GRID_H_ */

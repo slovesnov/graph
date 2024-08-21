@@ -22,13 +22,13 @@ std::string Grid::set(VString const &t) {
 	std::string s;
 
 	if (t.size() != GRID_CHECK_SIZE + GRID_ENTRY_SIZE) {
-		E(INVALID_NUMBER_OF_PARAMETERS,commonError)
+		E(INVALID_NUMBER_OF_PARAMETERS, commonError)
 	}
 	//all checks at first, because parsing of steps depends on checks
 	for (m = 0; m < SIZEI(GRID_CHECK_INDEX); m++) {
 		j = GRID_CHECK_INDEX[m];
 		if (!parseString(t[j], l) || (l != 0 && l != 1)) {
-			E(INVALID_CHECK_SHOULD_BE_0_OR_1,checkError[m])
+			E(INVALID_CHECK_SHOULD_BE_0_OR_1, checkError[m])
 		}
 		check[m] = l;
 	}
@@ -38,8 +38,8 @@ std::string Grid::set(VString const &t) {
 		if ( INDEX_OF(j, GRID_CHECK_INDEX) != -1) {
 			continue;
 		}
-		s=setValue(t[j],n);
-		if(!s.empty()){
+		s = setValue(t[j], n);
+		if (!s.empty()) {
 			return s;
 		}
 		n++;
@@ -47,16 +47,16 @@ std::string Grid::set(VString const &t) {
 	return "";
 }
 
-bool Grid::ok(){
+bool Grid::ok() {
 	int i;
 	for (i = 0; i < GRID_CHECK_SIZE; i++) {
-		if(!checkError[i].empty()){
+		if (!checkError[i].empty()) {
 //			printl(i)
 			return false;
 		}
 	}
 	for (i = 0; i < GRID_ENTRY_SIZE; i++) {
-		if(!valueError[i].empty()){
+		if (!valueError[i].empty()) {
 //			printl(i)
 			return false;
 		}
@@ -68,69 +68,63 @@ bool Grid::ok(){
 void Grid::reset() {
 	int i;
 	bool c[] = { 1, 1, 1, 1 };
-	commonError="";
+	commonError = "";
 	for (i = 0; i < GRID_CHECK_SIZE; i++) {
 		check[i] = c[i];
-		checkError[i]="";
+		checkError[i] = "";
 	}
 	double v[] = { 150, 2, 150, 2, 30 };
 	for (i = 0; i < GRID_ENTRY_SIZE; i++) {
 		value[i] = v[i];
-		valueError[i]="";
+		valueError[i] = "";
 	}
 }
 
 //Note check[] should be set
-std::string Grid::setValue(std::string s,int n) {
+std::string Grid::setValue(std::string s, int n) {
 	double d;
 	int l;
 	if (oneOf(n, GRID_ENTRY_DIGITS_X, GRID_ENTRY_DIGITS_Y,
 			GRID_ENTRY_MAXSTEPS)) {
 		if (!parseString(s, l) || l < 0) {
-			E(CANNT_PARSE_INTEGER_OR_PARSE_NEGATIVE_VALUE,valueError[n])
+			E(CANNT_PARSE_INTEGER_OR_PARSE_NEGATIVE_VALUE, valueError[n])
 		}
 		if (n == GRID_ENTRY_MAXSTEPS && l == 0) {
-			E(MAXIMUM_STEPS_SHOULD_BE_GREATER_THAN_ZERO,valueError[n])
+			E(MAXIMUM_STEPS_SHOULD_BE_GREATER_THAN_ZERO, valueError[n])
 		}
 		d = l;
 	} else { //GRID_ENTRY_STEP_X GRID_ENTRY_STEP_Y
 		if (check[
 				n == GRID_ENTRY_STEP_X ?
 						GRID_CHECK_PIXELS_X : GRID_CHECK_PIXELS_Y]) {
-			const int q=100;
+			const int q = 100;
 			if (!parseString(s, l) || l < q) {
-				E1(CANNT_PARSE_INTEGER_OR_PARSE_VALUE,valueError[n],(" "+std::to_string(q)))
+				E1(CANNT_PARSE_INTEGER_OR_PARSE_VALUE, valueError[n],
+						(" " + std::to_string(q)))
 			}
 			d = l;
 		} else {
 			if (!parseString(s, d) || d <= 0) {
-				E(CANNT_PARSE_DOUBLE_OR_PARSE_NEGATIVE_VALUE,valueError[n])
+				E(CANNT_PARSE_DOUBLE_OR_PARSE_NEGATIVE_VALUE, valueError[n])
 			}
 		}
 	}
 	value[n] = d;
-	valueError[n]="";
+	valueError[n] = "";
 	return "";
 }
 
 std::string Grid::toString() {
-	const char* p[]={"show_x", "step_x", "pixels_x", "digits_x"
-			, "show_y", "step_y", "pixels_y", "digits_y"
-			, "maxsteps"};
-	const double v[]={
-			double(check[GRID_CHECK_SHOW_X])
-			,value[GRID_ENTRY_STEP_X]
-			,double(check[GRID_CHECK_PIXELS_X])
-			, value[GRID_ENTRY_DIGITS_X]
-			,double( check[GRID_CHECK_SHOW_Y])
-			, value[GRID_ENTRY_STEP_Y]
-			,double( check[GRID_CHECK_PIXELS_Y])
-			, value[GRID_ENTRY_DIGITS_Y]
-			, value[GRID_ENTRY_MAXSTEPS]
-	};
-	std::string s="\ngrid";
-	for(int i=0;i<SIZEI(p);i++){
-		s+=formatz(' ',p[i],"=",SEPARATOR,v[i],SEPARATOR);
+	const char *p[] = { "show_x", "step_x", "pixels_x", "digits_x", "show_y",
+			"step_y", "pixels_y", "digits_y", "maxsteps" };
+	const double v[] = { double(check[GRID_CHECK_SHOW_X]),
+			value[GRID_ENTRY_STEP_X], double(check[GRID_CHECK_PIXELS_X]),
+			value[GRID_ENTRY_DIGITS_X], double(check[GRID_CHECK_SHOW_Y]),
+			value[GRID_ENTRY_STEP_Y], double(check[GRID_CHECK_PIXELS_Y]),
+			value[GRID_ENTRY_DIGITS_Y], value[GRID_ENTRY_MAXSTEPS] };
+	std::string s = "\ngrid";
+	for (int i = 0; i < SIZEI(p); i++) {
+		s += formatz(' ', p[i], "=", SEPARATOR, v[i], SEPARATOR);
 	}
 	return s;
 }
@@ -163,11 +157,11 @@ void Grid::operator =(const Grid &g) {
 	int i;
 	for (i = 0; i < GRID_CHECK_SIZE; i++) {
 		check[i] = g.check[i];
-		checkError[i]=g.checkError[i];
+		checkError[i] = g.checkError[i];
 	}
 	for (i = 0; i < GRID_ENTRY_SIZE; i++) {
-		value[i]=g.value[i];
-		valueError[i]=g.valueError[i];
+		value[i] = g.value[i];
+		valueError[i] = g.valueError[i];
 	}
-	commonError=g.commonError;
+	commonError = g.commonError;
 }

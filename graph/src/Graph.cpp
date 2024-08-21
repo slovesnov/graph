@@ -252,8 +252,8 @@ void Graph::inputChanged(GtkWidget *w) {
 			} else {
 				m_v.clear();
 				if (m_type == GraphType::SIMPLE && i == 0) {
-					std::vector<Point> vp=stringToVectorPoints(s);
-					if(!vp.empty()){
+					std::vector<Point> vp = stringToVectorPoints(s);
+					if (!vp.empty()) {
 						m_v = vp;
 						removeClass(m_entry[0], CERROR);
 					}
@@ -279,8 +279,8 @@ void Graph::setFormula(std::string s, int i) {
 	try {
 		m_formula[i] = s;
 		m_ok[i] = true;
-		auto v=stringToVectorPoints(s);
-		if(v.empty()){
+		auto v = stringToVectorPoints(s);
+		if (v.empty()) {
 			m_estimator[i].compile(m_formula[i], a[int(m_type)]);
 		}
 	} catch (std::exception &e) {
@@ -333,7 +333,8 @@ std::string Graph::toString() {
 	for (j = 0; j <= int(m_type); j++) {
 		i = m_type == GraphType::POLAR && j == 1 ? 2 : j;
 		s += " " + std::string(i == 2 ? "steps" : "formula") + "="
-				+ GraphWindow::toSaveString(gtk_entry_get_text(GTK_ENTRY(m_entry[i])));
+				+ GraphWindow::toSaveString(
+						gtk_entry_get_text(GTK_ENTRY(m_entry[i])));
 	}
 	if (m_type != GraphType::SIMPLE) {
 		s += " minmax=" + m_minmax.toString();
@@ -369,15 +370,14 @@ bool Graph::isFormulaOk() {
 	return m_ok[0] && (m_ok[1] || m_type != GraphType::PARAMETRICAL);
 }
 
-std::vector<Point> Graph::stringToVectorPoints(std::string s){
+std::vector<Point> Graph::stringToVectorPoints(std::string s) {
 	VString v = splitr(trim(s), "\\s+");
-	std::vector<Point> vp,ve;
+	std::vector<Point> vp, ve;
 	Point p;
 	size_t j;
-	if (v.size() % 2 == 0 && !v.empty() ) {
+	if (v.size() % 2 == 0 && !v.empty()) {
 		for (j = 0; j < v.size(); j += 2) {
-			if (!parseString(v[j], p.x)
-					|| !parseString(v[j + 1], p.y)) {
+			if (!parseString(v[j], p.x) || !parseString(v[j + 1], p.y)) {
 				return ve;
 			}
 			vp.push_back(p);

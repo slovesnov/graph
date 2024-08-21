@@ -725,14 +725,14 @@ void GraphWindow::save() {
 		return;
 	}
 	setPathUpdateTitle(s);
-	std::ofstream f(s,std::ios::binary);//binary no \r
+	std::ofstream f(s, std::ios::binary);	//binary no \r
 	s = forma(ExpressionEstimator::version);
 	int i = 0;
 	for (auto a : m_xy) {
 		s += format("\nminmax_%c=", "xy"[i]) + a.toString();
 		i++;
 	}
-	s+=m_grid.toString();
+	s += m_grid.toString();
 
 	for (auto a : m_g) {
 		s += "\n" + a->toString();
@@ -777,9 +777,9 @@ void GraphWindow::load(std::string s) {
 				m_xy[i - 1].set(t[0], t[1]);
 				m_xy[i - 1].inputChanged();
 			} else if (i == 3) {
-				s=m_grid.set(t);
-				if(!s.empty()){
-					error=1;
+				s = m_grid.set(t);
+				if (!s.empty()) {
+					error = 1;
 					break;
 				}
 			} else {
@@ -820,7 +820,10 @@ void GraphWindow::load(std::string s) {
 	if (error) {
 		showModalDialog(getLanguageString(ERROR),
 				getLanguageString(ERROR_FILE_IS_CORRUPTED) + std::string("\n")
-				+(error==1?s:getFileInfo(__FILE__, FILEINFO::NAME) + ":"+ std::to_string(error)));
+						+ (error == 1 ?
+								s :
+								getFileInfo(__FILE__, FILEINFO::NAME) + ":"
+										+ std::to_string(error)));
 		if (m_g.empty()) {
 			addGraph(GraphType::SIMPLE, 0);
 		}
@@ -915,7 +918,7 @@ void GraphWindow::setDefaultPathUpdateTitle() {
 void GraphWindow::showGridDialog() {
 	int i;
 	GtkWidget *b, *b1, *e, *f, *bh, *c;
-	m_gridStart=m_grid;
+	m_gridStart = m_grid;
 
 	bh = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3);
 	for (i = 0; i < 2; i++) {
@@ -957,37 +960,42 @@ void GraphWindow::showGridDialog() {
 	b = gtk_box_new(GTK_ORIENTATION_VERTICAL, 3);
 	gtk_container_add(GTK_CONTAINER(b), bh);
 	gtk_container_add(GTK_CONTAINER(b), b1);
-	gtk_container_add(GTK_CONTAINER(b), m_modalLabel=gtk_label_new(""));
+	gtk_container_add(GTK_CONTAINER(b), m_modalLabel = gtk_label_new(""));
 
 	m_grid.toDialog();
 	//after params are set
-	for(auto e:m_gridCheck){
+	for (auto e : m_gridCheck) {
 		g_signal_connect(e, "toggled", G_CALLBACK(check_changed), 0);
 	}
-	for(auto e:m_gridEntry){
+	for (auto e : m_gridEntry) {
 		g_signal_connect(e, "changed", G_CALLBACK(input_changed), GP(-1));
 	}
 
-	auto r=showModalDialog(getLanguageString(GRID), b,false);
-	if(r!=GTK_RESPONSE_OK){
+	auto r = showModalDialog(getLanguageString(GRID), b, false);
+	if (r != GTK_RESPONSE_OK) {
 		//GTK_RESPONSE_CANCEL or GTK_RESPONSE_DELETE_EVENT
-		m_grid=m_gridStart;
+		m_grid = m_gridStart;
 	}
 }
 
 void GraphWindow::inputChanged(GtkWidget *w) {
 	const char *t = gtk_entry_get_text(GTK_ENTRY(w));
 	int i = INDEX_OF(w, m_gridEntry);
-	auto s=replaceAll(m_grid.setValue(t, i),"\n"," ");
+	auto s = replaceAll(m_grid.setValue(t, i), "\n", " ");
 	gtk_label_set_text(GTK_LABEL(m_modalLabel), s.c_str());
 	addRemoveClass(w, CERROR, !s.empty()); //red font
-	gtk_widget_set_sensitive(m_modalButton[0],m_grid.ok());
+	gtk_widget_set_sensitive(m_modalButton[0], m_grid.ok());
 }
 
 void GraphWindow::checkChanged(GtkWidget *w) {
 	int i = INDEX_OF(w, m_gridCheck);
 	if (i == GRID_CHECK_PIXELS_X || i == GRID_CHECK_PIXELS_Y) {
-		inputChanged(m_gridEntry[i - 1]);
+		m_grid.check[i] = gtk_toggle_button_get_active(
+				GTK_TOGGLE_BUTTON(pWindow->m_gridCheck[i]));
+		inputChanged(
+				m_gridEntry[
+						i == GRID_CHECK_PIXELS_X ?
+								GRID_ENTRY_STEP_X : GRID_ENTRY_STEP_Y]);
 	}
 }
 
@@ -1003,33 +1011,34 @@ std::string GraphWindow::toSaveString(double i) {
 	return SEPARATOR + removeEndingZeros(std::to_string(i)) + SEPARATOR;
 }
 
-gint GraphWindow::showModalDialog(std::string title, std::string text){
+gint GraphWindow::showModalDialog(std::string title, std::string text) {
 	return showModalDialog(title, gtk_label_new(text.c_str()));
 }
 
-gint GraphWindow::showModalDialog(std::string title, GtkWidget *w,bool simple) {
+gint GraphWindow::showModalDialog(std::string title, GtkWidget *w,
+		bool simple) {
 	GtkWidget *b, *b1, *b2;
 	int i;
 	auto d = m_modal = gtk_dialog_new();
 	gtk_window_set_modal(GTK_WINDOW(d), TRUE);
 	gtk_window_set_transient_for(GTK_WINDOW(d), GTK_WINDOW(m_window));
 
-	gtk_window_set_title(GTK_WINDOW(d),title.c_str());
+	gtk_window_set_title(GTK_WINDOW(d), title.c_str());
 	gtk_window_set_resizable(GTK_WINDOW(d), 0);
 
 	b = gtk_box_new(GTK_ORIENTATION_VERTICAL, 3);
 	gtk_container_add(GTK_CONTAINER(b), w);
 	b1 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3);
 	std::vector<STRING_ENUM> v;
-	if(simple){
-		v= { STRING_ENUM::OK };
+	if (simple) {
+		v = { STRING_ENUM::OK };
+	} else {
+		v = { STRING_ENUM::OK, STRING_ENUM::RESET, STRING_ENUM::CANCEL };
 	}
-	else{
-		v= { STRING_ENUM::OK,STRING_ENUM::RESET,STRING_ENUM::CANCEL };
-	}
-	i=0;
+	i = 0;
 	for (auto e : v) {
-		b2 =m_modalButton[i++]= gtk_button_new_with_label(getLanguageString(e));
+		b2 = m_modalButton[i++] = gtk_button_new_with_label(
+				getLanguageString(e));
 		addClass(b2, "sbutton");
 		g_signal_connect(b2, "clicked", G_CALLBACK(grid_gialog_button_clicked),
 				GP(e));
@@ -1048,16 +1057,16 @@ gint GraphWindow::showModalDialog(std::string title, GtkWidget *w,bool simple) {
 
 void GraphWindow::gridDialogButtonClicked(STRING_ENUM e) {
 	//printl(int(e))
-	if(e==STRING_ENUM::RESET){
+	if (e == STRING_ENUM::RESET) {
 		m_grid.reset();
 		m_grid.toDialog();
-		gtk_widget_set_sensitive(m_modalButton[0],1);
-	}
-	else{
-		if(e==STRING_ENUM::OK){
+		gtk_widget_set_sensitive(m_modalButton[0], 1);
+	} else {
+		if (e == STRING_ENUM::OK) {
 			m_grid.fromDialog();
 			redraw();
 		}
-		gtk_dialog_response(GTK_DIALOG(m_modal), e==STRING_ENUM::OK?GTK_RESPONSE_OK:GTK_RESPONSE_CANCEL);
+		gtk_dialog_response(GTK_DIALOG(m_modal),
+				e == STRING_ENUM::OK ? GTK_RESPONSE_OK : GTK_RESPONSE_CANCEL);
 	}
 }
