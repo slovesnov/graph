@@ -25,7 +25,7 @@ enum {
 
 const std::string LNG[] = { "en", "ru" };
 
-std::string removeEndingZeros(std::string s) {
+std::string removeEndingZero(std::string s) {
 	/*
 	 std::string a[]={"1.2300","45.00","800","340."};
 	 1.2300 1.23
@@ -41,6 +41,11 @@ std::string removeEndingZeros(std::string s) {
 		r = r.substr(0, i);
 	}
 	return r;
+}
+
+std::string removeEndingZerosMinusZero(std::string s) {
+	std::string r=removeEndingZero(s);
+	return r=="-0"?"0":r;
 }
 
 static void grid_gialog_button_clicked(GtkWidget *widget, STRING_ENUM e) {
@@ -411,7 +416,7 @@ void GraphWindow::draw(cairo_t *cr, int w, int h) {
 			j = trunc(v / delta);
 			for (x = fmod(v, delta), i = 0; x < w; x += delta, i++) {
 				if (i != j || !bothVisible) {
-					s = removeEndingZeros(
+					s = removeEndingZerosMinusZero(
 							format("%.*lf", digits, fromScreenX(x)));
 					cairo_move_to(cr, x, xvisible ? p.y : fontSize);
 					cairo_show_text(cr, s.c_str());
@@ -427,7 +432,7 @@ void GraphWindow::draw(cairo_t *cr, int w, int h) {
 			for (x1 = ceil(fromScreenX(0) / step) * step, i = 0;
 					i < m_grid.value[GRID_ENTRY_MAXSTEPS]
 							&& (x = toScreenX(x1)) < w; x1 += step, i++) {
-				s = removeEndingZeros(format("%.*lf", digits, x1));
+				s = removeEndingZerosMinusZero(format("%.*lf", digits, x1));
 				cairo_move_to(cr, x, xvisible ? p.y : fontSize);
 				cairo_show_text(cr, s.c_str());
 
@@ -446,7 +451,7 @@ void GraphWindow::draw(cairo_t *cr, int w, int h) {
 			j = trunc(v / delta);
 			for (y = fmod(v, delta), i = 0; y < h; y += delta, i++) {
 				if (i != j || !bothVisible) {
-					s = removeEndingZeros(
+					s = removeEndingZerosMinusZero(
 							format("%.*lf", digits, fromScreenY(y)));
 					cairo_move_to(cr, yvisible ? p.x : 0, y);
 					cairo_show_text(cr, s.c_str());
@@ -461,7 +466,7 @@ void GraphWindow::draw(cairo_t *cr, int w, int h) {
 			for (y1 = ceil(fromScreenY(h) / step) * step, i = 0;
 					i < m_grid.value[GRID_ENTRY_MAXSTEPS]
 							&& (y = toScreenY(y1)) > 0; y1 += step, i++) {
-				s = removeEndingZeros(format("%.*lf", digits, y1));
+				s = removeEndingZerosMinusZero(format("%.*lf", digits, y1));
 				cairo_move_to(cr, yvisible ? p.x : 0, y);
 				cairo_show_text(cr, s.c_str());
 
@@ -1008,7 +1013,7 @@ std::string GraphWindow::toSaveString(int i) {
 }
 
 std::string GraphWindow::toSaveString(double i) {
-	return SEPARATOR + removeEndingZeros(std::to_string(i)) + SEPARATOR;
+	return SEPARATOR + removeEndingZerosMinusZero(std::to_string(i)) + SEPARATOR;
 }
 
 gint GraphWindow::showModalDialog(std::string title, std::string text) {
