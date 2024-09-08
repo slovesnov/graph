@@ -539,8 +539,9 @@ void GraphWindow::draw(cairo_t *cr, int w, int h) {
 
 void GraphWindow::mouseButtonDown(GdkEventButton *event) {
 	if (event->button == 1) {
-		m_dragx = event->x;
-		m_dragy = event->y;
+		//8sep24 fixed bug with mouse move over window and then go to other window and click on window, need also set m_dragxe, m_dragye
+		m_dragx = m_dragxe = event->x;
+		m_dragy =m_dragye = event->y;
 	} else if (event->button == 3) {
 		clickButton(IBUTTON_VIEWMAG_MINUS);
 	}
