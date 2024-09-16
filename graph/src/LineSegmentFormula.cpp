@@ -13,7 +13,7 @@
 
 LineSegmentFormula::LineSegmentFormula() {
 	a = b = 0;
-	p =nullptr;
+	p = nullptr;
 }
 LineSegmentFormula::~LineSegmentFormula() {
 	clear();
@@ -21,8 +21,8 @@ LineSegmentFormula::~LineSegmentFormula() {
 
 bool LineSegmentFormula::compile() {
 	try {
-		p =new ExpressionEstimator();
-		p->compile(s,"x");
+		p = new ExpressionEstimator();
+		p->compile(s, "x");
 		return true;
 	} catch (std::exception &e) {
 		clear();
