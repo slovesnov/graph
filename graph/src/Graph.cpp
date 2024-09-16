@@ -18,6 +18,7 @@ extern GraphWindow *pWindow;
 const char *name[] = { "y(x)=", "r(a)=", "x(t)=", "y(t)=" };
 const char *formula[] = { "tan(x)", "3*sin(3*a)", "3*cos(t)", "3*sin(t)" };
 const std::string GRAPH_PARAMETERS[] = { "0", "2*pi", "5 * 1000" }; //min,max,step
+const char FORMULA_SEPARATOR='#';
 
 //cann't use Graph *pGraph; because many graphs
 static void button_clicked(GtkWidget *w, Graph *g) {
@@ -110,9 +111,11 @@ void Graph::recount(double min, double max, int steps) {
 
 void Graph::recountAnyway() {
 	double t, x, y, v;
-	if (m_points) {
+	//printl(int(m_subtype))
+	if (m_subtype==GraphSubType::POINTS) {
 		return;
 	}
+
 	m_v.clear();
 	if (m_steps == 0 || !m_minmax.ok() || !isFormulaOk()) {
 		return;
@@ -123,22 +126,42 @@ void Graph::recountAnyway() {
 		printl("error",int(m_type),m_minmax.m_max, m_minmax.m_min, m_steps)
 		exit(0);
 	}
+
+//	printl(m_minmax.m_min, m_minmax.m_max,(m_minmax.m_max - m_minmax.m_min) / m_steps,int(m_subtype))
+
 	for (v = m_minmax.m_min; v <= m_minmax.m_max;
 			v += (m_minmax.m_max - m_minmax.m_min) / m_steps) {
 		try {
-			t = calculate(0, v);
-			if (m_type == GraphType::SIMPLE) {
-				x = v;
-				y = t;
-			} else if (m_type == GraphType::POLAR) {
-				x = t * cos(v);
-				y = t * sin(v);
-			} else {
-				x = t;
-				y = calculate(1, v);
-				//printl(y)
+			if(m_subtype==GraphSubType::MANY_FORMULAS){
+				for(auto &e:m_f){
+					if(e.a<=v && e.b>=v){
+						x=v;
+						//printl(e.p->getArguments())
+						y=e.p->calculate(x);
+						m_v.push_back( { x, y });
+						//printl(v,y)
+						//no break can be many graphs
+						//break;
+					}
+				}
 			}
-			m_v.push_back( { x, y });
+			else{
+				t = calculate(0, v);
+				if (m_type == GraphType::SIMPLE) {
+					x = v;
+					y = t;
+				} else if (m_type == GraphType::POLAR) {
+					x = t * cos(v);
+					y = t * sin(v);
+				} else {
+					x = t;
+					y = calculate(1, v);
+					//printl(y)
+				}
+				m_v.push_back( { x, y });
+
+			}
+
 		} catch (std::exception &e) {
 			printl(e.what())
 			;
@@ -157,7 +180,7 @@ void Graph::setDefault(GraphType type, bool resetColor/*=false*/,
 	}
 
 	m_type = type;
-	m_points = false;
+	m_subtype = GraphSubType::FORMULA;
 	int t = int(type);
 	std::string vf[] = { formula[t],
 			type == GraphType::PARAMETRICAL ? formula[3] : "" };
@@ -239,27 +262,64 @@ void Graph::inputChanged(GtkWidget *w) {
 	if (!m_signals) {
 		return;
 	}
+	//printi
 
 	int i = 0;
 	const char *s = gtk_entry_get_text(GTK_ENTRY(w));
+	//printl(s)
 	for (auto a : m_entry) {
 		if (a == w) {
+			//printi
 			if (i == 2) { //steps
+				//printi
 				if (setSteps()) {
 					recountAnyway();
 				}
 				pWindow->redraw();
 			} else {
+				//printi
 				m_v.clear();
+				m_subtype = GraphSubType::FORMULA;
 				if (m_type == GraphType::SIMPLE && i == 0) {
-					std::vector<Point> vp = stringToVectorPoints(s);
-					if (!vp.empty()) {
-						m_v = vp;
+					//printi
+					std::vector<Point> vp;
+					VLineSegmentFormula vf;
+					bool b;
+					if (strchr (s,FORMULA_SEPARATOR)){
+						vf=stringToVectorFormula(s);
+						b=!vf.empty();
+						if(b){
+							//printi
+							m_f=vf;
+							for(auto&e:m_f){
+								if(!e.compile()){
+									m_f.clear();
+									b=false;
+									break;
+								}
+							}
+//							printl(b)
+							if(b){
+								//printi
+								m_subtype = GraphSubType::MANY_FORMULAS;
+							}
+						}
+					}
+					else{
+						//printi
+						vp=stringToVectorPoints(s);
+						b=!vp.empty();
+						if(b){
+							m_v = vp;
+							m_subtype = GraphSubType::POINTS;
+						}
+					}
+					if (b) {
 						removeClass(m_entry[0], CERROR);
 					}
 				}
-				m_points = !m_v.empty();
-				if (!m_points) {
+				//printl(int(m_subtype),s)
+				if (m_subtype!=GraphSubType::POINTS) {
 					setFormula(s, i);
 					if (m_ok[i]) {
 						recountAnyway();
@@ -279,8 +339,14 @@ void Graph::setFormula(std::string s, int i) {
 	try {
 		m_formula[i] = s;
 		m_ok[i] = true;
-		auto v = stringToVectorPoints(s);
-		if (v.empty()) {
+		bool b;
+		if (s.find(FORMULA_SEPARATOR) == std::string::npos){
+			b=stringToVectorPoints(s).empty();
+		}
+		else{
+			b=stringToVectorFormula(s).empty();
+		}
+		if (b) {
 			m_estimator[i].compile(m_formula[i], a[int(m_type)]);
 		}
 	} catch (std::exception &e) {
@@ -370,21 +436,70 @@ bool Graph::isFormulaOk() {
 	return m_ok[0] && (m_ok[1] || m_type != GraphType::PARAMETRICAL);
 }
 
-std::vector<Point> Graph::stringToVectorPoints(std::string s) {
-	VString v = splitr(trim(s), "\\s+");
-	std::vector<Point> vp, ve;
-	Point p;
-	size_t j;
-	if (v.size() % 2 == 0 && !v.empty()) {
-		for (j = 0; j < v.size(); j += 2) {
-			if (!parseString(v[j], p.x) || !parseString(v[j + 1], p.y)) {
-				return ve;
-			}
-			vp.push_back(p);
+std::vector<double> Graph::stringToVectorDoubles(std::string s) {
+	std::vector<double> r;
+	double d;
+	for(auto e: splitr(trim(s), "\\s+")){
+		if (!parseString(e, d) ) {
+			return {};
 		}
-		if (j == v.size()) {
-			return vp;
+		r.push_back(d);
+	}
+	return r;
+}
+
+std::vector<Point> Graph::stringToVectorPoints(std::string s) {
+	std::vector<double> v=stringToVectorDoubles(s);
+	if(v.size() % 2 != 0){
+		return {};
+	}
+	std::vector<Point> r;
+	size_t j;
+	for (j = 0; j < v.size(); j += 2) {
+		r.push_back({v[j],v[j+1]});
+	}
+	return r;
+}
+
+VLineSegmentFormula Graph::stringToVectorFormula(std::string s) {
+	VLineSegmentFormula r;
+	LineSegmentFormula l;
+	VString v = split(s, FORMULA_SEPARATOR);
+	ExpressionEstimator e;
+	for (auto s : v) {
+		s = trim(s);
+		GError *err = NULL;
+		GMatchInfo *matchInfo;
+		GRegex *regex;
+		regex = g_regex_new("^(.+)\\s+(.+)\\s+(.+)$", G_REGEX_DEFAULT,
+				G_REGEX_MATCH_DEFAULT, &err);
+		if (g_regex_match(regex, s.c_str(), G_REGEX_MATCH_DEFAULT,
+				&matchInfo)) {
+			gchar **c = g_match_info_fetch_all(matchInfo);
+			for (int i = 1; i < 4; i++) {
+				if(i==3){
+					try{
+						e.compile(c[i],"x");
+					}
+					catch(std::exception&){
+						//printl(c[i])
+						return {};
+					}
+					l.s=c[i];
+				}
+				else{
+					double&e=i==1?l.a:l.b;
+					if(!parseString(c[i],e)){
+						return {};
+					}
+				}
+			}
+			g_strfreev(c);
+			r.push_back(l);
+		} else {
+			return {};
 		}
 	}
-	return ve;
+	//printl(r.size())
+	return r;
 }

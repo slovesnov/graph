@@ -18,9 +18,14 @@
 #include "Point.h"
 #include "expressionEstimator.h"
 #include "MinMaxBox.h"
+#include "LineSegmentFormula.h"
 
 enum class GraphType {
 	SIMPLE, POLAR, PARAMETRICAL
+};
+
+enum class GraphSubType {
+	FORMULA,POINTS,MANY_FORMULAS
 };
 
 const int BUTTON_REMOVE_INDEX = 0;
@@ -35,7 +40,9 @@ public:
 	ExpressionEstimator m_estimator[2];
 	GraphType m_type;
 	std::vector<Point> m_v;
-	bool m_points, m_show;
+	VLineSegmentFormula m_f;
+	bool m_show;
+	GraphSubType m_subtype;
 	int m_colorIndex;
 
 	Graph(GraphType type, int colorIndex);
@@ -58,7 +65,9 @@ public:
 	void buttonClicked(GtkWidget *w);
 	void setUpdateButton1(bool show);
 	bool isFormulaOk();
+	static std::vector<double> stringToVectorDoubles(std::string s);
 	static std::vector<Point> stringToVectorPoints(std::string s);
+	static VLineSegmentFormula stringToVectorFormula(std::string s);
 };
 
 #endif /* GRAPH_H_ */
