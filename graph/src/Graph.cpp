@@ -285,11 +285,10 @@ void Graph::inputChanged(GtkWidget *w) {
 					std::vector<Point> vp;
 					VLineSegmentFormula vf;
 					bool b;
-					if (strchr (s,FORMULA_SEPARATOR)){
+					if (s[0]==FORMULA_SEPARATOR){
 						vf=stringToVectorFormula(s);
 						b=!vf.empty();
 						if(b){
-							//printi
 							m_f=vf;
 							for(auto&e:m_f){
 								if(!e.compile()){
@@ -298,9 +297,7 @@ void Graph::inputChanged(GtkWidget *w) {
 									break;
 								}
 							}
-//							printl(b)
 							if(b){
-								//printi
 								m_subtype = GraphSubType::MANY_FORMULAS;
 							}
 						}
@@ -340,11 +337,11 @@ void Graph::setFormula(std::string s, int i) {
 		m_formula[i] = s;
 		m_ok[i] = true;
 		bool b;
-		if (s.find(FORMULA_SEPARATOR) == std::string::npos){
-			b=stringToVectorPoints(s).empty();
+		if (s[0]==FORMULA_SEPARATOR){
+			b=stringToVectorFormula(s).empty();
 		}
 		else{
-			b=stringToVectorFormula(s).empty();
+			b=stringToVectorPoints(s).empty();
 		}
 		if (b) {
 			m_estimator[i].compile(m_formula[i], a[int(m_type)]);
@@ -464,7 +461,7 @@ std::vector<Point> Graph::stringToVectorPoints(std::string s) {
 VLineSegmentFormula Graph::stringToVectorFormula(std::string s) {
 	VLineSegmentFormula r;
 	LineSegmentFormula l;
-	VString v = split(s, FORMULA_SEPARATOR);
+	VString v = split(s.substr(1), FORMULA_SEPARATOR);
 	ExpressionEstimator e;
 	for (auto s : v) {
 		s = trim(s);
