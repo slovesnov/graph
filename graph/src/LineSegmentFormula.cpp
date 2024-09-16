@@ -33,6 +33,7 @@ bool LineSegmentFormula::compile() {
 void LineSegmentFormula::clear() {
 	if (p) {
 		delete p;
+		p=nullptr;
 	}
 
 }
