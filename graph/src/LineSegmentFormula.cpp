@@ -25,6 +25,7 @@ bool LineSegmentFormula::compile() {
 		p->compile(s,"x");
 		return true;
 	} catch (std::exception &e) {
+		clear();
 		return false;
 	}
 }
