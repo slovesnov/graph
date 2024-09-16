@@ -471,10 +471,11 @@ VLineSegmentFormula Graph::stringToVectorFormula(std::string s) {
 		GError *err = NULL;
 		GMatchInfo *matchInfo;
 		GRegex *regex;
-		regex = g_regex_new("^(.+)\\s+(.+)\\s+(.+)$", G_REGEX_DEFAULT,
+		regex = g_regex_new("^(.+?)\\s+(.+?)\\s+(.+?)$", G_REGEX_DEFAULT,
 				G_REGEX_MATCH_DEFAULT, &err);
 		if (g_regex_match(regex, s.c_str(), G_REGEX_MATCH_DEFAULT,
 				&matchInfo)) {
+//			printi
 			gchar **c = g_match_info_fetch_all(matchInfo);
 			for (int i = 1; i < 4; i++) {
 				if(i==3){
@@ -483,6 +484,7 @@ VLineSegmentFormula Graph::stringToVectorFormula(std::string s) {
 					}
 					catch(std::exception&){
 						//printl(c[i])
+//						printi
 						return {};
 					}
 					l.s=c[i];
@@ -497,9 +499,11 @@ VLineSegmentFormula Graph::stringToVectorFormula(std::string s) {
 			g_strfreev(c);
 			r.push_back(l);
 		} else {
+//			printi
 			return {};
 		}
 	}
 	//printl(r.size())
+//	printi
 	return r;
 }
