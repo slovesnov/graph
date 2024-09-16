@@ -21,6 +21,7 @@ LineSegmentFormula::~LineSegmentFormula() {
 
 bool LineSegmentFormula::compile() {
 	try {
+		clear();
 		p = new ExpressionEstimator();
 		p->compile(s, "x");
 		return true;
