@@ -233,8 +233,7 @@ GraphWindow::GraphWindow() {
 
 	setDefaultPathUpdateTitle();
 	m_grid.reset();
-	//TODO
-	load("C:\\Users\\user\\git\\graph\\graph\\p_mass.gr");
+	//load("C:\\Users\\user\\git\\graph\\graph\\p_mass.gr");
 	gtk_main();
 }
 
