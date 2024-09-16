@@ -282,6 +282,8 @@ void Graph::inputChanged(GtkWidget *w) {
 				m_subtype = GraphSubType::FORMULA;
 				if (m_type == GraphType::SIMPLE && i == 0) {
 					//printi
+					std::string p=s;
+					std::string s=trim(p);
 					std::vector<Point> vp;
 					VLineSegmentFormula vf;
 					bool b;
@@ -337,6 +339,7 @@ void Graph::setFormula(std::string s, int i) {
 		m_formula[i] = s;
 		m_ok[i] = true;
 		bool b;
+		s=trim(s);
 		if (s[0]==FORMULA_SEPARATOR){
 			b=stringToVectorFormula(s).empty();
 		}
