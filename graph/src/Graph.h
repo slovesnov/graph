@@ -67,7 +67,7 @@ public:
 	bool isFormulaOk();
 	static std::vector<double> stringToVectorDoubles(std::string s);
 	static std::vector<Point> stringToVectorPoints(std::string s);
-	static VLineSegmentFormula& stringToVectorFormula(std::string s,VLineSegmentFormula&r);
+	static VLineSegmentFormula stringToVectorFormula(std::string s);
 };
 
 #endif /* GRAPH_H_ */

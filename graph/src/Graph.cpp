@@ -285,15 +285,13 @@ void Graph::inputChanged(GtkWidget *w) {
 					std::string p=s;
 					std::string s=trim(p);
 					std::vector<Point> vp;
-					//VLineSegmentFormula vf;
+					VLineSegmentFormula vf;
 					bool b;
 					if (s[0]==FORMULA_SEPARATOR){
-						printi
-						stringToVectorFormula(s,m_f);
-						printi
-						b=!m_f.empty();
+						vf=stringToVectorFormula(s);
+						b=!vf.empty();
 						if(b){
-							//m_f=vf;
+							m_f=vf;
 							for(auto&e:m_f){
 								if(!e.compile()){
 									m_f.clear();
@@ -343,9 +341,7 @@ void Graph::setFormula(std::string s, int i) {
 		bool b;
 		s=trim(s);
 		if (s[0]==FORMULA_SEPARATOR){
-			printi
-			b=stringToVectorFormula(s,m_f).empty();
-			printi
+			b=stringToVectorFormula(s).empty();
 		}
 		else{
 			b=stringToVectorPoints(s).empty();
@@ -465,9 +461,8 @@ std::vector<Point> Graph::stringToVectorPoints(std::string s) {
 	return r;
 }
 
-VLineSegmentFormula& Graph::stringToVectorFormula(std::string s,VLineSegmentFormula&r) {
-	//VLineSegmentFormula r;
-	r.clear();
+VLineSegmentFormula Graph::stringToVectorFormula(std::string s) {
+	VLineSegmentFormula r;
 	LineSegmentFormula l;
 	VString v = split(s.substr(1), FORMULA_SEPARATOR);
 	ExpressionEstimator e;
@@ -488,24 +483,21 @@ VLineSegmentFormula& Graph::stringToVectorFormula(std::string s,VLineSegmentForm
 					}
 					catch(std::exception&){
 						//printl(c[i])
-						r.clear();
-						return r;
+						return {};
 					}
 					l.s=c[i];
 				}
 				else{
 					double&e=i==1?l.a:l.b;
 					if(!parseString(c[i],e)){
-						r.clear();
-						return r;
+						return {};
 					}
 				}
 			}
 			g_strfreev(c);
 			r.push_back(l);
 		} else {
-			r.clear();
-			return r;
+			return {};
 		}
 	}
 	//printl(r.size())
