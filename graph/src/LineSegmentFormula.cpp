@@ -29,18 +29,6 @@ bool LineSegmentFormula::compile() {
 	}
 }
 
-/*
-LineSegmentFormula& LineSegmentFormula::operator =(LineSegmentFormula &&o) {
-	a=o.a;
-	b=o.b;
-	s=o.s;
-	//s=std::move(o.s);
-	clear();
-	p=o.p;
-	return *this;
-}
-*/
-
 void LineSegmentFormula::clear() {
 	if (p) {
 		delete p;

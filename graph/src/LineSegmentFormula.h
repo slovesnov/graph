@@ -21,7 +21,6 @@ public:
 	ExpressionEstimator*p;
 	LineSegmentFormula();
 	~LineSegmentFormula();
-	//LineSegmentFormula& operator=(LineSegmentFormula &&o);
 	bool compile();
 	void clear();
 };

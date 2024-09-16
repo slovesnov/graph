@@ -282,15 +282,13 @@ void Graph::inputChanged(GtkWidget *w) {
 				m_subtype = GraphSubType::FORMULA;
 				if (m_type == GraphType::SIMPLE && i == 0) {
 					//printi
-					std::vector<Point> vp;
-					VLineSegmentFormula vf;
 					bool b;
 					if (strchr (s,FORMULA_SEPARATOR)){
-						vf=stringToVectorFormula(s);
-						b=!vf.empty();
+						printi
+						b=stringToVectorFormula(s,m_f);
+						printl(b)
 						if(b){
-							//printi
-							m_f=vf;
+						printi
 							for(auto&e:m_f){
 								if(!e.compile()){
 									m_f.clear();
@@ -298,7 +296,7 @@ void Graph::inputChanged(GtkWidget *w) {
 									break;
 								}
 							}
-//							printl(b)
+							printl(b)
 							if(b){
 								//printi
 								m_subtype = GraphSubType::MANY_FORMULAS;
@@ -307,13 +305,13 @@ void Graph::inputChanged(GtkWidget *w) {
 					}
 					else{
 						//printi
-						vp=stringToVectorPoints(s);
-						b=!vp.empty();
+						b=stringToVectorPoints(s,m_v);
+						printl(b)
 						if(b){
-							m_v = vp;
 							m_subtype = GraphSubType::POINTS;
 						}
 					}
+					printl(b)
 					if (b) {
 						removeClass(m_entry[0], CERROR);
 					}
@@ -340,16 +338,20 @@ void Graph::setFormula(std::string s, int i) {
 		m_formula[i] = s;
 		m_ok[i] = true;
 		bool b;
+		printl(s)
 		if (s.find(FORMULA_SEPARATOR) == std::string::npos){
-			b=stringToVectorPoints(s).empty();
+			b=stringToVectorPoints(s,m_v);
+			printl(b)
 		}
 		else{
-			b=stringToVectorFormula(s).empty();
+			b=stringToVectorFormula(s,m_f);
+			printl(b)
 		}
-		if (b) {
+		if (!b) {
 			m_estimator[i].compile(m_formula[i], a[int(m_type)]);
 		}
 	} catch (std::exception &e) {
+		printl(e.what())
 		m_v.clear();
 		m_ok[i] = false;
 	}
@@ -448,25 +450,31 @@ std::vector<double> Graph::stringToVectorDoubles(std::string s) {
 	return r;
 }
 
-std::vector<Point> Graph::stringToVectorPoints(std::string s) {
+bool Graph::stringToVectorPoints(std::string s,std::vector<Point>&r) {
 	std::vector<double> v=stringToVectorDoubles(s);
+	r.clear();
 	if(v.size() % 2 != 0){
-		return {};
+		return false;
 	}
-	std::vector<Point> r;
 	size_t j;
 	for (j = 0; j < v.size(); j += 2) {
 		r.push_back({v[j],v[j+1]});
 	}
-	return r;
+	return true;
 }
 
-VLineSegmentFormula Graph::stringToVectorFormula(std::string s) {
-	VLineSegmentFormula r;
-	LineSegmentFormula l;
+bool Graph::stringToVectorFormula(std::string s,VLineSegmentFormula&r) {
+	r.clear();
+
 	VString v = split(s, FORMULA_SEPARATOR);
 	ExpressionEstimator e;
+	printi
+	r.resize(v.size());
+	printi
+	int i=-1;
 	for (auto s : v) {
+		i++;
+		LineSegmentFormula& l=r[i];
 		s = trim(s);
 		GError *err = NULL;
 		GMatchInfo *matchInfo;
@@ -483,23 +491,26 @@ VLineSegmentFormula Graph::stringToVectorFormula(std::string s) {
 					}
 					catch(std::exception&){
 						//printl(c[i])
-						return {};
+						r.clear();
+						return false;
 					}
 					l.s=c[i];
 				}
 				else{
 					double&e=i==1?l.a:l.b;
 					if(!parseString(c[i],e)){
-						return {};
+						r.clear();
+						return false;
 					}
 				}
 			}
 			g_strfreev(c);
-			r.push_back(l);
 		} else {
-			return {};
+			r.clear();
+			return false;
 		}
 	}
 	//printl(r.size())
-	return r;
+	printi
+	return true;
 }

@@ -66,8 +66,8 @@ public:
 	void setUpdateButton1(bool show);
 	bool isFormulaOk();
 	static std::vector<double> stringToVectorDoubles(std::string s);
-	static std::vector<Point> stringToVectorPoints(std::string s);
-	static VLineSegmentFormula stringToVectorFormula(std::string s);
+	static bool stringToVectorPoints(std::string s,std::vector<Point>& r);
+	static bool stringToVectorFormula(std::string s,VLineSegmentFormula&r);
 };
 
 #endif /* GRAPH_H_ */
