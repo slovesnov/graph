@@ -1051,6 +1051,9 @@ gint GraphWindow::showModalDialog(std::string title, GtkWidget *w,
 				GP(e));
 		gtk_container_add(GTK_CONTAINER(b1), b2);
 	}
+	for(;i<SIZEI(m_modalButton);i++){
+		m_modalButton[i]=NULL;//uses for gridDialogButtonClicked
+	}
 
 	gtk_container_add(GTK_CONTAINER(b), b1);
 	auto ca = gtk_dialog_get_content_area(GTK_DIALOG(d));
@@ -1069,7 +1072,7 @@ void GraphWindow::gridDialogButtonClicked(STRING_ENUM e) {
 		m_grid.toDialog();
 		gtk_widget_set_sensitive(m_modalButton[0], 1);
 	} else {
-		if (e == STRING_ENUM::OK) {
+		if (e == STRING_ENUM::OK && m_modalButton[1]) {
 			m_grid.fromDialog();
 			redraw();
 		}
