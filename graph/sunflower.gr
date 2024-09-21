@@ -1,6 +1,7 @@
 1.27
 minmax_x= -10 540
 minmax_y= -1 11
+grid show_x=1 step_x=50 pixels_x=0 digits_x=0 show_y=1 step_y=1 pixels_y=0 digits_y=1 maxsteps=100
 type=0 color=0 formula=0.015965508172753315*x+2.0183665934157347 show=1
 type=0 color=1 formula=87 3 114 4  212 5.5 250 6 287 7  352 8 380 8 407 8 500 10 show=1
 type=0 color=2 formula=-0.000007369776316279398*x^2+0.020132717562643787*x+1.5519348503365507 show=1
