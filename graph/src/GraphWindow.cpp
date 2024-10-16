@@ -110,6 +110,27 @@ static gboolean draw_callback(GtkWidget *widget, cairo_t *cr, gpointer data) {
 	return FALSE;
 }
 
+static void drag_and_drop_received(GtkWidget *, GdkDragContext *context, gint x,
+		gint y, GtkSelectionData *data, guint ttype, guint time, gpointer) {
+
+	gint l = gtk_selection_data_get_length(data);
+	gint a = gtk_selection_data_get_format(data);
+	if (l >= 0 && a == 8) {
+		gchar **uris = gtk_selection_data_get_uris(data);
+		for (gint i = 0; uris[i] != 0; i++) {
+			gchar*fn = g_filename_from_uri(uris[i], NULL, NULL);
+			std::string p=fn;
+			g_free(fn);
+			if (!isDir(p) && getFileInfo(p, FILEINFO::LOWER_EXTENSION)==DEFAULT_EXTENSION) {
+				pWindow->load(p);
+				break;
+			}
+		}
+		g_strfreev(uris);
+		gtk_drag_finish(context, true, false, time);
+	}
+}
+
 GraphWindow::GraphWindow() {
 	int i, j;
 	std::size_t p;
@@ -222,6 +243,11 @@ GraphWindow::GraphWindow() {
 	updateLanguage();
 
 	gtk_window_maximize(GTK_WINDOW(m_window));
+
+	gtk_drag_dest_set(m_window, GTK_DEST_DEFAULT_ALL, NULL, 0, GDK_ACTION_COPY);
+	gtk_drag_dest_add_uri_targets(m_window);
+	g_signal_connect(m_window, "drag-data-received",
+			G_CALLBACK(drag_and_drop_received), gpointer(this));
 
 	gtk_widget_show_all(m_window);
 

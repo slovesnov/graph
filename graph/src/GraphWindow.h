@@ -156,7 +156,7 @@ public:
 	void updateEnableClose();
 	void save();
 	void load();
-	void load(std::string s); //for debug
+	void load(std::string s);
 	void clearGraphs(bool removeFromContainer = true);
 	void addGraph(GraphType type, int colorIndex);
 	std::string filechooser(bool save);
