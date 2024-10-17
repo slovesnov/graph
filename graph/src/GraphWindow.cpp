@@ -247,7 +247,7 @@ GraphWindow::GraphWindow() {
 	gtk_drag_dest_set(m_window, GTK_DEST_DEFAULT_ALL, NULL, 0, GDK_ACTION_COPY);
 	gtk_drag_dest_add_uri_targets(m_window);
 	g_signal_connect(m_window, "drag-data-received",
-			G_CALLBACK(drag_and_drop_received), gpointer(this));
+			G_CALLBACK(drag_and_drop_received), NULL);
 
 	gtk_widget_show_all(m_window);
 
