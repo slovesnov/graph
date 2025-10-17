@@ -1,13 +1,3 @@
-/*
- * Graph.cpp
- *
- *  Created on: 13.04.2022
- *      Author: alexey slovesnov
- * copyright(c/c++): 2014-doomsday
- *           E-mail: slovesnov@yandex.ru
- *         homepage: slovesnov.users.sourceforge.net
- */
-
 #include <cmath>
 
 #include "aslov.h"
@@ -18,7 +8,7 @@ extern GraphWindow *pWindow;
 const char *name[] = { "y(x)=", "r(a)=", "x(t)=", "y(t)=" };
 const char *formula[] = { "tan(x)", "3*sin(3*a)", "3*cos(t)", "3*sin(t)" };
 const std::string GRAPH_PARAMETERS[] = { "0", "2*pi", "5 * 1000" }; //min,max,step
-const char FORMULA_SEPARATOR='#';
+const char FORMULA_SEPARATOR = '#';
 
 //cann't use Graph *pGraph; because many graphs
 static void button_clicked(GtkWidget *w, Graph *g) {
@@ -112,7 +102,7 @@ void Graph::recount(double min, double max, int steps) {
 void Graph::recountAnyway() {
 	double t, x, y, v;
 	//printl(int(m_subtype))
-	if (m_subtype==GraphSubType::POINTS) {
+	if (m_subtype == GraphSubType::POINTS) {
 		return;
 	}
 
@@ -132,20 +122,19 @@ void Graph::recountAnyway() {
 	for (v = m_minmax.m_min; v <= m_minmax.m_max;
 			v += (m_minmax.m_max - m_minmax.m_min) / m_steps) {
 		try {
-			if(m_subtype==GraphSubType::MANY_FORMULAS){
-				for(auto &e:m_f){
-					if(e.a<=v && e.b>=v){
-						x=v;
+			if (m_subtype == GraphSubType::MANY_FORMULAS) {
+				for (auto &e : m_f) {
+					if (e.a <= v && e.b >= v) {
+						x = v;
 						//printl(e.p->getArguments())
-						y=e.p->calculate(x);
+						y = e.p->calculate(x);
 						m_v.push_back( { x, y });
 						//printl(v,y)
 						//no break can be many graphs
 						//break;
 					}
 				}
-			}
-			else{
+			} else {
 				t = calculate(0, v);
 				if (m_type == GraphType::SIMPLE) {
 					x = v;
@@ -282,33 +271,32 @@ void Graph::inputChanged(GtkWidget *w) {
 				m_subtype = GraphSubType::FORMULA;
 				if (m_type == GraphType::SIMPLE && i == 0) {
 					//printi
-					std::string p=s;
-					std::string s=trim(p);
+					std::string p = s;
+					std::string s = trim(p);
 					std::vector<Point> vp;
 					VLineSegmentFormula vf;
 					bool b;
-					if (s[0]==FORMULA_SEPARATOR){
-						vf=stringToVectorFormula(s);
-						b=!vf.empty();
-						if(b){
-							m_f=vf;
-							for(auto&e:m_f){
-								if(!e.compile()){
+					if (s[0] == FORMULA_SEPARATOR) {
+						vf = stringToVectorFormula(s);
+						b = !vf.empty();
+						if (b) {
+							m_f = vf;
+							for (auto &e : m_f) {
+								if (!e.compile()) {
 									m_f.clear();
-									b=false;
+									b = false;
 									break;
 								}
 							}
-							if(b){
+							if (b) {
 								m_subtype = GraphSubType::MANY_FORMULAS;
 							}
 						}
-					}
-					else{
+					} else {
 						//printi
-						vp=stringToVectorPoints(s);
-						b=!vp.empty();
-						if(b){
+						vp = stringToVectorPoints(s);
+						b = !vp.empty();
+						if (b) {
 							m_v = vp;
 							m_subtype = GraphSubType::POINTS;
 						}
@@ -318,7 +306,7 @@ void Graph::inputChanged(GtkWidget *w) {
 					}
 				}
 				//printl(int(m_subtype),s)
-				if (m_subtype!=GraphSubType::POINTS) {
+				if (m_subtype != GraphSubType::POINTS) {
 					setFormula(s, i);
 					if (m_ok[i]) {
 						recountAnyway();
@@ -339,12 +327,11 @@ void Graph::setFormula(std::string s, int i) {
 		m_formula[i] = s;
 		m_ok[i] = true;
 		bool b;
-		s=trim(s);
-		if (s[0]==FORMULA_SEPARATOR){
-			b=stringToVectorFormula(s).empty();
-		}
-		else{
-			b=stringToVectorPoints(s).empty();
+		s = trim(s);
+		if (s[0] == FORMULA_SEPARATOR) {
+			b = stringToVectorFormula(s).empty();
+		} else {
+			b = stringToVectorPoints(s).empty();
 		}
 		if (b) {
 			m_estimator[i].compile(m_formula[i], a[int(m_type)]);
@@ -439,8 +426,8 @@ bool Graph::isFormulaOk() {
 std::vector<double> Graph::stringToVectorDoubles(std::string s) {
 	std::vector<double> r;
 	double d;
-	for(auto e: splitr(trim(s), "\\s+")){
-		if (!parseString(e, d) ) {
+	for (auto e : splitr(trim(s), "\\s+")) {
+		if (!parseString(e, d)) {
 			return {};
 		}
 		r.push_back(d);
@@ -449,14 +436,14 @@ std::vector<double> Graph::stringToVectorDoubles(std::string s) {
 }
 
 std::vector<Point> Graph::stringToVectorPoints(std::string s) {
-	std::vector<double> v=stringToVectorDoubles(s);
-	if(v.size() % 2 != 0){
+	std::vector<double> v = stringToVectorDoubles(s);
+	if (v.size() % 2 != 0) {
 		return {};
 	}
 	std::vector<Point> r;
 	size_t j;
 	for (j = 0; j < v.size(); j += 2) {
-		r.push_back({v[j],v[j+1]});
+		r.push_back( { v[j], v[j + 1] });
 	}
 	return r;
 }
@@ -478,20 +465,18 @@ VLineSegmentFormula Graph::stringToVectorFormula(std::string s) {
 //			printi
 			gchar **c = g_match_info_fetch_all(matchInfo);
 			for (int i = 1; i < 4; i++) {
-				if(i==3){
-					try{
-						e.compile(c[i],"x");
-					}
-					catch(std::exception&){
+				if (i == 3) {
+					try {
+						e.compile(c[i], "x");
+					} catch (std::exception&) {
 						//printl(c[i])
 //						printi
 						return {};
 					}
-					l.s=c[i];
-				}
-				else{
-					double&e=i==1?l.a:l.b;
-					if(!parseString(c[i],e)){
+					l.s = c[i];
+				} else {
+					double &e = i == 1 ? l.a : l.b;
+					if (!parseString(c[i], e)) {
 						return {};
 					}
 				}

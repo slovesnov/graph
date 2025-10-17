@@ -1,13 +1,3 @@
-/*
- * Grid.cpp
- *
- *  Created on: 20.08.2024
- *      Author: alexey slovesnov
- * copyright(c/c++): 2014-doomsday
- *           E-mail: slovesnov@yandex.ru
- *         homepage: slovesnov.users.sourceforge.net
- */
-
 #include "Grid.h"
 #include "GraphWindow.h"
 

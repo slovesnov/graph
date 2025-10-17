@@ -1,13 +1,3 @@
-/*
- * GraphWindow.cpp
- *
- *  Created on: 13.04.2022
- *      Author: alexey slovesnov
- * copyright(c/c++): 2014-doomsday
- *           E-mail: slovesnov@yandex.ru
- *         homepage: slovesnov.users.sourceforge.net
- */
-
 #include <cmath>
 
 #include "GraphWindow.h"
@@ -16,7 +6,7 @@
 GraphWindow *pWindow;
 
 const std::string CONFIG_TAGS[] = { "version", "language" };
-const std::string URL = "http://slovesnov.users.sourceforge.net?graph";
+const std::string URL = "https://slovesnov.rf.gd?graph";
 const int startGraphs = 1;
 
 enum {
@@ -44,8 +34,8 @@ std::string removeEndingZero(std::string s) {
 }
 
 std::string removeEndingZerosMinusZero(std::string s) {
-	std::string r=removeEndingZero(s);
-	return r=="-0"?"0":r;
+	std::string r = removeEndingZero(s);
+	return r == "-0" ? "0" : r;
 }
 
 static void grid_gialog_button_clicked(GtkWidget *widget, STRING_ENUM e) {
@@ -110,7 +100,7 @@ static gboolean draw_callback(GtkWidget *widget, cairo_t *cr, gpointer data) {
 	return FALSE;
 }
 
-static void drag_and_drop_received(GtkWidget *, GdkDragContext *context, gint x,
+static void drag_and_drop_received(GtkWidget*, GdkDragContext *context, gint x,
 		gint y, GtkSelectionData *data, guint ttype, guint time, gpointer) {
 
 	gint l = gtk_selection_data_get_length(data);
@@ -118,10 +108,12 @@ static void drag_and_drop_received(GtkWidget *, GdkDragContext *context, gint x,
 	if (l >= 0 && a == 8) {
 		gchar **uris = gtk_selection_data_get_uris(data);
 		for (gint i = 0; uris[i] != 0; i++) {
-			gchar*fn = g_filename_from_uri(uris[i], NULL, NULL);
-			std::string p=fn;
+			gchar *fn = g_filename_from_uri(uris[i], NULL, NULL);
+			std::string p = fn;
 			g_free(fn);
-			if (!isDir(p) && getFileInfo(p, FILEINFO::LOWER_EXTENSION)==DEFAULT_EXTENSION) {
+			if (!isDir(p)
+					&& getFileInfo(p, FILEINFO::LOWER_EXTENSION)
+							== DEFAULT_EXTENSION) {
 				pWindow->load(p);
 				break;
 			}
@@ -366,7 +358,7 @@ void GraphWindow::clickButton(IBUTTON n) {
 		break;
 
 	case IBUTTON_HELP:
-		openURL(URL);
+		openURL(URL + "," + LNG[m_language]);
 		break;
 
 	default:
@@ -535,7 +527,7 @@ void GraphWindow::draw(cairo_t *cr, int w, int h) {
 			}
 			x = toScreenX(p.x);
 			y = toScreenY(p.y);
-			if (a.m_subtype==GraphSubType::POINTS) {
+			if (a.m_subtype == GraphSubType::POINTS) {
 				cairo_arc(cr, x, y, 5, 0, 2 * G_PI);
 				cairo_close_path(cr);
 				cairo_stroke_preserve(cr);
@@ -568,7 +560,7 @@ void GraphWindow::mouseButtonDown(GdkEventButton *event) {
 	if (event->button == 1) {
 		//8sep24 fixed bug with mouse move over window and then go to other window and click on window, need also set m_dragxe, m_dragye
 		m_dragx = m_dragxe = event->x;
-		m_dragy =m_dragye = event->y;
+		m_dragy = m_dragye = event->y;
 	} else if (event->button == 3) {
 		clickButton(IBUTTON_VIEWMAG_MINUS);
 	}
@@ -1077,8 +1069,8 @@ gint GraphWindow::showModalDialog(std::string title, GtkWidget *w,
 				GP(e));
 		gtk_container_add(GTK_CONTAINER(b1), b2);
 	}
-	for(;i<SIZEI(m_modalButton);i++){
-		m_modalButton[i]=NULL;//uses for gridDialogButtonClicked
+	for (; i < SIZEI(m_modalButton); i++) {
+		m_modalButton[i] = NULL; //uses for gridDialogButtonClicked
 	}
 
 	gtk_container_add(GTK_CONTAINER(b), b1);

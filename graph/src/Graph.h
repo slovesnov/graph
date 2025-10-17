@@ -1,13 +1,3 @@
-/*
- * Graph.h
- *
- *  Created on: 13.04.2022
- *      Author: alexey slovesnov
- * copyright(c/c++): 2014-doomsday
- *           E-mail: slovesnov@yandex.ru
- *         homepage: slovesnov.users.sourceforge.net
- */
-
 #ifndef GRAPH_H_
 #define GRAPH_H_
 
@@ -25,7 +15,7 @@ enum class GraphType {
 };
 
 enum class GraphSubType {
-	FORMULA,POINTS,MANY_FORMULAS
+	FORMULA, POINTS, MANY_FORMULAS
 };
 
 const int BUTTON_REMOVE_INDEX = 0;

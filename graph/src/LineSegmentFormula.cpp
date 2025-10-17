@@ -1,13 +1,3 @@
-/*
- * LineSegmentFormula.cpp
- *
- *  Created on: 16.09.2024
- *      Author: alexey slovesnov
- * copyright(c/c++): 2014-doomsday
- *           E-mail: slovesnov@yandex.ru
- *         homepage: slovesnov.users.sourceforge.net
- */
-
 #include "aslov.h"
 #include "LineSegmentFormula.h"
 
@@ -34,7 +24,7 @@ bool LineSegmentFormula::compile() {
 void LineSegmentFormula::clear() {
 	if (p) {
 		delete p;
-		p=nullptr;
+		p = nullptr;
 	}
 
 }
