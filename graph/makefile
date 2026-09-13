@@ -2,7 +2,7 @@
 
 # 1. Compiler and flags settings
 ASLOV    := ../../aslov/aslov/src/aslov
-ESTIMATOR:= ../../parser/parser/cpp/estimator/src/estimator
+ESTIMATOR:= ../../parser_cpp/parser_cpp/src/estimator
 CXX      := g++
 #-O2 -Wall -Wextra -Wpedantic
 CXXFLAGS := -O3 -DNDEBUG -Wall -std=c++23 -I$(ASLOV) -I$(ESTIMATOR) $(shell pkg-config --cflags gtk+-3.0)
