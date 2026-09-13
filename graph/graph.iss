@@ -3,7 +3,7 @@
 #define GTKPATH "C:\msys64\mingw64\"
 #define SITE "https://slovesnov.rf.gd"
 #define APPNAME "graph"
-#define VERSION "1.2.9"
+#define VERSION "1.3.0"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
