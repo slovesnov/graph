@@ -751,7 +751,7 @@ void GraphWindow::save() {
 	}
 	setPathUpdateTitle(s);
 	std::ofstream f(s, std::ios::binary);	//binary no \r
-	s = forma(ExpressionEstimator::version);
+	s = ExpressionEstimator::version;
 	int i = 0;
 	for (auto a : m_xy) {
 		s += format("\nminmax_%c=", "xy"[i]) + a.toString();
@@ -926,7 +926,7 @@ bool GraphWindow::isGraphsVisible() {
 void GraphWindow::updateTitle() {
 	std::string s = getFileInfo(m_path, FILEINFO::NAME) + " - "
 			+ getLanguageString(PLOTTER) + " (" + getLanguageString(VERSION)
-			+ " " + forma(ExpressionEstimator::version) + ")";
+			+ " " + ExpressionEstimator::version + ")";
 	gtk_window_set_title(GTK_WINDOW(m_window), s.c_str());
 }
 
