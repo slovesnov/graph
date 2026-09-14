@@ -16,7 +16,7 @@ endif
 
 # 2. Automatic file discovery
 # Finds all .cpp files in the source directory, as well as specific dependency files
-SRCS     := $(wildcard src/*.cpp) $(wildcard $(ASLOV)/aslov.cpp) $(wildcard $(ESTIMATOR)/*.cpp)
+SRCS     := $(wildcard src/*.cpp) $(ASLOV)/aslov.cpp $(wildcard $(ESTIMATOR)/*.cpp)
 # Replaces .cpp extensions with .o to generate the object files list
 OBJS     := $(SRCS:.cpp=.o)
 
