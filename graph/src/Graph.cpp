@@ -376,7 +376,7 @@ bool Graph::setSteps() {
 }
 
 bool Graph::inEntry(GtkWidget *w) {
-	return m_minmax.inEntry(w) || oneOf(w, m_entry, SIZEI(m_entry));
+	return m_minmax.inEntry(w) || oneOf(w, m_entry);
 }
 
 std::string Graph::toString() {
@@ -404,7 +404,7 @@ void Graph::setStepsMinMax(std::string &steps, std::string &min,
 }
 
 void Graph::buttonClicked(GtkWidget *w) {
-	int i = INDEX_OF(w, m_button);
+	int i = indexOf(w, m_button);
 	if (i == BUTTON_REMOVE_INDEX) {
 		pWindow->removeGraph(w);
 	} else {

@@ -25,7 +25,7 @@ std::string Grid::set(VString const &t) {
 	//all entries
 	n = 0;
 	for (j = 0; j < t.size(); j++) {
-		if ( INDEX_OF(j, GRID_CHECK_INDEX) != -1) {
+		if ( oneOf(j, GRID_CHECK_INDEX) ) {
 			continue;
 		}
 		s = setValue(t[j], n);

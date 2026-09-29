@@ -173,7 +173,7 @@ void MinMaxBox::updateEntryColor(int i) {
 }
 
 bool MinMaxBox::inEntry(GtkWidget *w) {
-	return oneOf(w, m_entry, SIZEI(m_entry));
+	return oneOf(w, m_entry);
 }
 
 std::string MinMaxBox::toString() {

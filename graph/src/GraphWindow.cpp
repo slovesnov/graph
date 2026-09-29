@@ -128,14 +128,16 @@ GraphWindow::GraphWindow() {
 	std::size_t p;
 	const std::string cl = ".c";
 	GtkWidget *hb, *b;
+	std::string s;
 
 	pWindow = this;
-	loadConfig();
+	m_language = getSystemLanguage() == "ru";
+	readConfig(CONFIG_TAGS,s,m_language);
 	m_setaxisOnDraw = true;
 
 	loadCSS();
 	//load colors
-	auto s = fileGetContent(getApplicationName() + ".css");
+	s = fileGetContent(getApplicationName() + ".css");
 	auto v = split(s, "\n");
 	j = 0;
 	for (auto &a : v) {
@@ -257,7 +259,7 @@ GraphWindow::GraphWindow() {
 
 GraphWindow::~GraphWindow() {
 	clearGraphs(false);
-	WRITE_CONFIG(CONFIG_TAGS, ExpressionEstimator::version, m_language);
+	writeConfig(CONFIG_TAGS, ExpressionEstimator::version, m_language);
 }
 
 void GraphWindow::changeLanguage(int language) {
@@ -266,7 +268,7 @@ void GraphWindow::changeLanguage(int language) {
 }
 
 void GraphWindow::clickButton(GtkWidget *widget) {
-	clickButton(IBUTTON(INDEX_OF(widget, m_ibutton)));
+	clickButton(IBUTTON(indexOf(widget, m_ibutton)));
 }
 
 void GraphWindow::clickButton(IBUTTON n) {
@@ -676,20 +678,6 @@ void GraphWindow::updateLanguage() {
 	}
 }
 
-void GraphWindow::loadConfig() {
-	m_language = 0;
-	int j;
-	MapStringString m;
-	MapStringString::iterator it;
-	if (::loadConfig(m)) {
-		if ((it = m.find("language")) != m.end()) {
-			if (parseString(it->second, j) && j >= 0 && j < SIZEI(LNG)) {
-				m_language = j;
-			}
-		}
-	}
-}
-
 void GraphWindow::removeGraph(GtkWidget *w) {
 	for (auto it = m_g.begin(); it != m_g.end(); it++) {
 		if ((*it)->m_button[BUTTON_REMOVE_INDEX] == w) {
@@ -993,7 +981,7 @@ void GraphWindow::showGridDialog() {
 		g_signal_connect(e, "toggled", G_CALLBACK(check_changed), 0);
 	}
 	for (auto e : m_gridEntry) {
-		g_signal_connect(e, "changed", G_CALLBACK(input_changed), GP(-1));
+		g_signal_connect(e, "changed", G_CALLBACK(input_changed), GINT_TO_POINTER(-1));
 	}
 
 	auto r = showModalDialog(getLanguageString(GRID), b, false);
@@ -1005,7 +993,7 @@ void GraphWindow::showGridDialog() {
 
 void GraphWindow::inputChanged(GtkWidget *w) {
 	const char *t = gtk_entry_get_text(GTK_ENTRY(w));
-	int i = INDEX_OF(w, m_gridEntry);
+	int i = indexOf(w, m_gridEntry);
 	auto s = replaceAll(m_grid.setValue(t, i), "\n", " ");
 	gtk_label_set_text(GTK_LABEL(m_modalLabel), s.c_str());
 	addRemoveClass(w, CERROR, !s.empty()); //red font
@@ -1013,7 +1001,7 @@ void GraphWindow::inputChanged(GtkWidget *w) {
 }
 
 void GraphWindow::checkChanged(GtkWidget *w) {
-	int i = INDEX_OF(w, m_gridCheck);
+	int i = indexOf(w, m_gridCheck);
 	if (i == GRID_CHECK_PIXELS_X || i == GRID_CHECK_PIXELS_Y) {
 		m_grid.check[i] = gtk_toggle_button_get_active(
 				GTK_TOGGLE_BUTTON(pWindow->m_gridCheck[i]));
@@ -1066,7 +1054,7 @@ gint GraphWindow::showModalDialog(std::string title, GtkWidget *w,
 				getLanguageString(e));
 		addClass(b2, "sbutton");
 		g_signal_connect(b2, "clicked", G_CALLBACK(grid_gialog_button_clicked),
-				GP(e));
+				GINT_TO_POINTER(e));
 		gtk_container_add(GTK_CONTAINER(b1), b2);
 	}
 	for (; i < SIZEI(m_modalButton); i++) {
