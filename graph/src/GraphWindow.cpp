@@ -598,8 +598,8 @@ void GraphWindow::mouseMove(GdkEventButton *event) {
 		m_dragye = event->y;
 		gtk_widget_queue_draw(m_area);
 	}
-	auto s = "x=" + forma(fromScreenX(event->x)) + " y="
-			+ forma(fromScreenY(event->y));
+	auto s = "x=" + std::format("{}",fromScreenX(event->x)) + " y="
+			+ std::format("{}",fromScreenY(event->y));
 	gtk_label_set_text(GTK_LABEL(m_coordinates), s.c_str());
 }
 

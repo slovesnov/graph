@@ -114,7 +114,7 @@ std::string Grid::toString() {
 			value[GRID_ENTRY_DIGITS_Y], value[GRID_ENTRY_MAXSTEPS] };
 	std::string s = "\ngrid";
 	for (int i = 0; i < SIZEI(p); i++) {
-		s += formatz(' ', p[i], "=", SEPARATOR, v[i], SEPARATOR);
+		s += std::format(" {}={}{}{}", p[i], SEPARATOR, v[i], SEPARATOR);
 	}
 	return s;
 }
@@ -126,7 +126,7 @@ void Grid::toDialog() {
 				check[i]);
 	}
 	for (i = 0; i < GRID_ENTRY_SIZE; i++) {
-		std::string s = forma(value[i]);
+		std::string s = std::format("{}",value[i]);
 		gtk_entry_set_text(GTK_ENTRY(pWindow->m_gridEntry[i]), s.c_str());
 	}
 }

@@ -113,7 +113,7 @@ void Graph::recountAnyway() {
 
 	//DO NOT REMOVE
 	if ((m_minmax.m_max - m_minmax.m_min) / m_steps == 0) {
-		printl("error",int(m_type),m_minmax.m_max, m_minmax.m_min, m_steps)
+		pr("error",int(m_type),m_minmax.m_max, m_minmax.m_min, m_steps)
 		exit(0);
 	}
 
@@ -152,8 +152,7 @@ void Graph::recountAnyway() {
 			}
 
 		} catch (std::exception &e) {
-			printl(e.what())
-			;
+			pr(e.what());
 			break;
 		}
 	}

@@ -96,7 +96,7 @@ void MinMaxBox::updateEntries() {
 	int i;
 	m_signals = false;
 	for (i = 0; i < 2; i++) {
-		auto s = forma(i ? m_max : m_min);
+		auto s = std::format("{}",i ? m_max : m_min);
 		gtk_entry_set_text(GTK_ENTRY(m_entry[i]), s.c_str());
 	}
 	m_signals = true;
