@@ -56,7 +56,7 @@ Graph::Graph(GraphType type, int colorIndex) {
 	gtk_box_pack_start(GTK_BOX(m_box), m_name[2], FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(m_box), m_entry[2], 0, 0, 0);
 
-	for (i = 0; i < SIZEI(m_button); i++) {
+	for (i = 0; i < std::ssize(m_button); i++) {
 		auto b = m_button[i] = gtk_button_new();
 		if (!i) {
 			gtk_button_set_image(GTK_BUTTON(b), image("minus.png"));

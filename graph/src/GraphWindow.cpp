@@ -423,7 +423,7 @@ void GraphWindow::draw(cairo_t *cr, int w, int h) {
 
 	if (hasGrid) {
 		cairo_set_line_width(cr, 1);
-		cairo_set_dash(cr, dashed, SIZEI(dashed), 0);
+		cairo_set_dash(cr, dashed, std::ssize(dashed), 0);
 		cairo_set_font_size(cr, fontSize);
 	}
 
@@ -550,7 +550,7 @@ void GraphWindow::draw(cairo_t *cr, int w, int h) {
 		cairo_set_source_rgb(cr, 0, 0, 0);
 
 		const double dashed[] = { 14.0, 6.0 };
-		cairo_set_dash(cr, dashed, SIZEI(dashed), 0);
+		cairo_set_dash(cr, dashed, std::ssize(dashed), 0);
 
 		cairo_rectangle(cr, m_dragx + .5, m_dragy + .5, m_dragxe - m_dragx + .5,
 				m_dragye - m_dragy + .5);
@@ -649,7 +649,7 @@ void GraphWindow::createLanguageCombo() {
 	guint i;
 
 	store = gtk_tree_store_new(2, GDK_TYPE_PIXBUF, G_TYPE_STRING);
-	for (i = 0; i < SIZE(LNG); i++) {
+	for (i = 0; i < std::size(LNG); i++) {
 		pb = pixbuf((LNG[i] + ".gif").c_str());
 		gtk_tree_store_append(store, &iter, NULL);
 		gtk_tree_store_set(store, &iter, PIXBUF_COL, pb, TEXT_COL,
@@ -1057,7 +1057,7 @@ gint GraphWindow::showModalDialog(std::string title, GtkWidget *w,
 				GINT_TO_POINTER(e));
 		gtk_container_add(GTK_CONTAINER(b1), b2);
 	}
-	for (; i < SIZEI(m_modalButton); i++) {
+	for (; i < std::ssize(m_modalButton); i++) {
 		m_modalButton[i] = NULL; //uses for gridDialogButtonClicked
 	}
 

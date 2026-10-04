@@ -15,7 +15,7 @@ std::string Grid::set(VString const &t) {
 		E(INVALID_NUMBER_OF_PARAMETERS, commonError)
 	}
 	//all checks at first, because parsing of steps depends on checks
-	for (m = 0; m < SIZEI(GRID_CHECK_INDEX); m++) {
+	for (m = 0; m < std::ssize(GRID_CHECK_INDEX); m++) {
 		j = GRID_CHECK_INDEX[m];
 		if (!parseString(t[j], l) || (l != 0 && l != 1)) {
 			E(INVALID_CHECK_SHOULD_BE_0_OR_1, checkError[m])
@@ -113,7 +113,7 @@ std::string Grid::toString() {
 			value[GRID_ENTRY_STEP_Y], double(check[GRID_CHECK_PIXELS_Y]),
 			value[GRID_ENTRY_DIGITS_Y], value[GRID_ENTRY_MAXSTEPS] };
 	std::string s = "\ngrid";
-	for (int i = 0; i < SIZEI(p); i++) {
+	for (int i = 0; i < std::ssize(p); i++) {
 		s += std::format(" {}={}{}{}", p[i], SEPARATOR, v[i], SEPARATOR);
 	}
 	return s;

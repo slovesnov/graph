@@ -27,7 +27,7 @@ static std::string IMAGE_BUTTONS[] = {
     "plus.png",     "new.png",      "folder.png",     "save.png",
     "viewmag+.png", "viewmag-.png", "fullscreen.png", TRIANGLE_UP,
     "grid.png",     "help.png",     "off.png",        "on.png"};
-static_assert(SIZEI(IMAGE_BUTTONS) == IBUTTON_SIZE);
+static_assert(std::ssize(IMAGE_BUTTONS) == IBUTTON_SIZE);
 
 static const char *languageString[][64] = {
     {"plotter",

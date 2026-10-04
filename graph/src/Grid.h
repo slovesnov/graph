@@ -8,7 +8,7 @@ const int GRID_CHECK_SHOW_X = 0;
 const int GRID_CHECK_PIXELS_X = 1;
 const int GRID_CHECK_SHOW_Y = 2;
 const int GRID_CHECK_PIXELS_Y = 3;
-const int GRID_CHECK_SIZE = SIZEI(GRID_CHECK_INDEX);
+const int GRID_CHECK_SIZE = std::ssize(GRID_CHECK_INDEX);
 
 const int GRID_ENTRY_STEP_X = 0;
 const int GRID_ENTRY_DIGITS_X = 1;
