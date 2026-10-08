@@ -39,7 +39,7 @@ Graph::Graph(GraphType type, int colorIndex) {
 
 	for (i = 0; i < 2; i++) {
 		m_name[i] = gtk_label_new("");
-		addClass(m_name[i], format("c%d", m_colorIndex));
+		addClass(m_name[i], std::format("c{}", m_colorIndex));
 		gtk_box_pack_start(GTK_BOX(m_box), m_name[i], FALSE, FALSE, 0);
 
 		gtk_box_pack_start(GTK_BOX(m_box), m_entry[i], 1, 1, 0);
@@ -162,9 +162,9 @@ void Graph::setDefault(GraphType type, bool resetColor/*=false*/,
 		bool recount/*=false*/) {
 	int i;
 	if (resetColor) {
-		removeClass(m_name[0], format("c%d", m_colorIndex));
+		removeClass(m_name[0], std::format("c{}", m_colorIndex));
 		m_colorIndex = 0;
-		addClass(m_name[0], format("c%d", m_colorIndex));
+		addClass(m_name[0], std::format("c{}", m_colorIndex));
 	}
 
 	m_type = type;
